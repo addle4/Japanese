@@ -2,7 +2,7 @@ import SwiftUI
 
 struct KanaCellView: View {
     let character: KanaCharacter
-    
+
     var body: some View {
         VStack(spacing: 5) {
             Text(character.kana)
@@ -17,5 +17,7 @@ struct KanaCellView: View {
         .frame(height: 80)
         .background(Color.cardBackground)
         .cornerRadius(10)
+        .drawingGroup() // GPU 렌더링
     }
 }
+

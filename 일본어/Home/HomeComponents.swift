@@ -47,7 +47,7 @@ struct LessonCardView: View {
     var body: some View {
         VStack(spacing: 15) {
             HStack {
-                Text("오늘의 장면 학습")
+                Text("오늘의 학습")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
@@ -146,5 +146,6 @@ struct AppButton: View {
         .padding(.bottom, 10)
     }
 }
+
 
 
