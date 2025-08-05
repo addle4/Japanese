@@ -13,11 +13,10 @@ struct KanaCellView: View {
                 .fontWeight(.medium)
                 .foregroundColor(.white.opacity(0.7))
         }
-        .frame(minWidth: 0, maxWidth: .infinity)
+        .frame(maxWidth: .infinity)
         .frame(height: 80)
         .background(Color.cardBackground)
         .cornerRadius(10)
-        .drawingGroup() // GPU 렌더링
+        // Removed drawingGroup() to improve scrolling performance
     }
 }
-

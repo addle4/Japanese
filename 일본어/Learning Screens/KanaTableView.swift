@@ -1,62 +1,61 @@
+// KanaTableView.swift
 import SwiftUI
+import UIKit
 
 struct KanaTableView: View {
     let title: String
     let gridData: [KanaGridItem]
-
     @State private var selectedCharacter: KanaCharacter?
-
-    let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 5)
+    private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 5)
 
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(gridData) { item in
-                    switch item {
-                    case .character(let char):
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                selectedCharacter = char
+        ZStack {
+            Color.darkBackground
+                .ignoresSafeArea()
+
+            ScrollView(.vertical, showsIndicators: true) {
+                LazyVGrid(columns: columns, spacing: 10) {
+                    ForEach(gridData) { item in
+                        switch item {
+                        case .character(let char):
+                            Button(action: {
+                                withAnimation(.none) {
+                                    selectedCharacter = char
+                                }
+                            }) {
+                                KanaCellView(character: char)
                             }
-                        }) {
-                            KanaCellView(character: char)
+                        case .empty:
+                            Color.clear
+                                .frame(height: 80)
                         }
-                    case .empty:
-                        Rectangle()
-                            .fill(Color.clear)
-                            .frame(height: 80)
                     }
                 }
+                .padding()
             }
-            .padding()
+            .scrollBounceBehavior(.basedOnSize) // iOS17+: 콘텐츠가 클 때만 바운스됩니다.
 
-            Spacer().frame(height: 100) // 바운스 유도
-        }
-        .background(Color.darkBackground.ignoresSafeArea())
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .overlay(
-            Group {
-                if let character = selectedCharacter {
-                    ZStack {
-                        Color.black.opacity(0.6)
-                            .ignoresSafeArea()
-                            .onTapGesture {
-                                withAnimation {
-                                    selectedCharacter = nil
-                                }
-                            }
-
-                        KanaDetailView(character: character) {
-                            withAnimation {
+            if let character = selectedCharacter {
+                ZStack {
+                    Color.black.opacity(0.6)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.none) {
                                 selectedCharacter = nil
                             }
                         }
-                        .transition(.scale.combined(with: .opacity))
+
+                    KanaDetailView(character: character) {
+                        withAnimation(.none) {
+                            selectedCharacter = nil
+                        }
                     }
+                    .transition(.scale.combined(with: .opacity))
                 }
             }
-        )
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        // .onAppear 블록을 제거합니다.
     }
 }
-
