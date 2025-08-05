@@ -45,27 +45,38 @@ struct LessonCardView: View {
     var action: () -> Void
 
     var body: some View {
-        VStack(spacing: 15) {
+        VStack(spacing: 20) {
             HStack {
-                Text("오늘의 장면 학습")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
+                Text("📚✏️")
+                    .font(.system(size: 60))
                 Spacer()
+                ZStack {
+                    Circle()
+                        .stroke(Color.gray.opacity(0.5), lineWidth: 6)
+                        .frame(width: 70, height: 70)
+                    Text("0%")
+                        .font(.headline)
+                        .foregroundColor(Color(hex: "#6932BE"))
+                }
             }
 
-            Image(systemName: "film.fill")
-                .font(.system(size: 50))
-                .foregroundColor(.accentPink)
-
-            Text("새로운 장면으로 일본어를 배워봐요!")
-                .foregroundStyle(.white.opacity(0.8))
-
-            AppButton(title: "학습 시작하기", action: action)
+            Button(action: action) {
+                HStack {
+                    Image(systemName: "play.fill")
+                    Text("시작하기")
+                        .fontWeight(.bold)
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 30)
+                .padding(.vertical, 12)
+                .background(Color(hex: "#BCA3FF"))
+                .cornerRadius(12)
+                .shadow(color: Color.black.opacity(0.2), radius: 3, x: 1, y: 2)
+            }
         }
         .padding()
-        .background(Color.cardBackground)
-        .cornerRadius(20)
+        .background(Color(hex: "#E9DAFF"))
+        .cornerRadius(25)
     }
 }
 
@@ -147,4 +158,73 @@ struct AppButton: View {
     }
 }
 
+// MARK: - 오늘의 회화 카드
+struct ConversationCardView: View {
+    var action: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("오늘은 기분이 좋아요")
+                .font(.subheadline)
+                .fontWeight(.bold)
+                .foregroundColor(Color(hex: "#6932BE"))
+
+            // ✅ 일본어 문장에 검정 테두리 추가
+            Text("今日は 気分が いいです。")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundStyle(.white)
+                .overlay( // 윤곽선 추가
+                    Text("今日は 気分が いいです。")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                        .blur(radius: 0.1)
+                )
+                .padding(.bottom, 5)
+
+            // ✅ 일본어 문장의 시작에 맞춰 정렬
+            HStack {
+                Button(action: action) {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("학습하기")
+                            .fontWeight(.bold)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.white)
+                    .foregroundColor(Color(hex: "#6932BE"))
+                    .clipShape(Capsule())
+                }
+
+                Spacer() // 오른쪽 공간 확보용
+            }
+        }
+        .padding()
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color(hex: "#D2B4FF"), Color(hex: "#EAD6FF")]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+        .cornerRadius(20)
+    }
+}
+// MARK: - Hex 컬러 초기화
+extension Color {
+    init(hex: String) {
+        let scanner = Scanner(string: hex)
+        _ = scanner.scanString("#")
+        var rgb: UInt64 = 0
+        scanner.scanHexInt64(&rgb)
+
+        let r = Double((rgb >> 16) & 0xFF) / 255
+        let g = Double((rgb >> 8) & 0xFF) / 255
+        let b = Double(rgb & 0xFF) / 255
+
+        self.init(red: r, green: g, blue: b)
+    }
+}
 
