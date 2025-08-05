@@ -69,7 +69,8 @@ struct ConversationView: View{
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
-                        .background(RoundedRectangle(cornerRadius: 20).stroke(Color.purple, lineWidth: 1))
+                        .fontWeight(.bold)
+                        .background(RoundedRectangle(cornerRadius: 20).stroke(Color.black, lineWidth: 1))
                     }
                     .foregroundColor(.purple)
                     .padding()
