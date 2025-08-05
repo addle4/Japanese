@@ -5,8 +5,7 @@ struct HomeView: View {
 
     init() {
         let navAppearance = UINavigationBarAppearance()
-        navAppearance.configureWithOpaqueBackground()
-        navAppearance.backgroundColor = UIColor(Color.darkBackground)
+        navAppearance.configureWithTransparentBackground()
         navAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
         navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         UINavigationBar.appearance().standardAppearance = navAppearance
@@ -14,8 +13,17 @@ struct HomeView: View {
     }
 
     var body: some View {
+        
         ZStack {
-            Color.darkBackground.ignoresSafeArea()
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 204 / 255, green: 191 / 255, blue: 224 / 255), // #CCBFE0
+                        .white
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
 
             ScrollView {
                 VStack(spacing: 30) {
