@@ -34,6 +34,19 @@ struct HomeView: View {
                     }
 
                     KanaSectionView()
+                    
+                    // 임시 버튼
+                    NavigationLink(destination: ConversationView()) {
+                        Text("오늘의 회화")
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentBlue)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                
 
                     Spacer()
                 }
