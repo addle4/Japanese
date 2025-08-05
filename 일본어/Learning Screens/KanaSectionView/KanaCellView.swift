@@ -19,3 +19,4 @@ struct KanaCellView: View {
         .cornerRadius(10)
     }
 }
+
