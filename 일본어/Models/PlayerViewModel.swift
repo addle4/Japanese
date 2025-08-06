@@ -11,7 +11,7 @@ class PlayerViewModel: ObservableObject {
     private var isInFullscreen: Bool = false
 
     init() {
-        if let url = Bundle.main.url(forResource: "ハイキュー北信介名言 [it3tKC0ycu4] 2", withExtension: "mp4") {
+        if let url = Bundle.main.url(forResource: "ハイキュー北信介名言 [it3tKC0ycu4]", withExtension: "mp4") {
             self.player = AVPlayer(url: url)
         } else {
             self.player = AVPlayer()

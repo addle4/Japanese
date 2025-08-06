@@ -41,8 +41,7 @@ struct LearningFlowView: View {
                 case 2: Step2_DictationView(onComplete: advanceToNextStep)
                 case 3: Step3_SentenceBuilderView(onComplete: advanceToNextStep)
                 case 4: Step4_VocabularyView(onComplete: advanceToNextStep)
-                case 5: Step5_ShadowingView(onComplete: advanceToNextStep)
-                case 6: Step6_CompositionView(onComplete: advanceToNextStep)
+                case 5: Step5_CompositionView(onComplete: advanceToNextStep)
                 default: CompletionView(onRestart: { withAnimation { currentStep = 1 } }, onExit: { dismiss() })
                 }
             }

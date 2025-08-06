@@ -16,14 +16,14 @@
 		A4C0617A2E39FFA800DCB410 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = A4C061792E39FFA800DCB410 /* FirebaseAnalyticsCore */; };
 		A4C0617C2E3A014F00DCB410 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A4C0617B2E3A014F00DCB410 /* GoogleService-Info.plist */; };
 		A4D716B02E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A4D716AF2E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 */; };
-		A4D7191D2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4] 2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4] 2.mp4 */; };
+		A4D7191D2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A4C061522E39E6BB00DCB410 /* 일본어.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "일본어.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4C0617B2E3A014F00DCB410 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A4D716AF2E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4"; sourceTree = "<group>"; };
-		A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4] 2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ハイキュー北信介名言 [it3tKC0ycu4] 2.mp4"; sourceTree = "<group>"; };
+		A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ハイキュー北信介名言 [it3tKC0ycu4].mp4"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -55,7 +55,7 @@
 		A4C061492E39E6BB00DCB410 = {
 			isa = PBXGroup;
 			children = (
-				A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4] 2.mp4 */,
+				A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 */,
 				A4D716AF2E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 */,
 				A4C0617B2E3A014F00DCB410 /* GoogleService-Info.plist */,
 				A4C061542E39E6BB00DCB410 /* 일본어 */,
@@ -149,7 +149,7 @@
 			files = (
 				A4D716B02E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 in Resources */,
 				A4C0617C2E3A014F00DCB410 /* GoogleService-Info.plist in Resources */,
-				A4D7191D2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4] 2.mp4 in Resources */,
+				A4D7191D2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
