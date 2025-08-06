@@ -46,11 +46,7 @@ struct HomeView: View {
                             .cornerRadius(12)
                     }
                     .padding(.horizontal)
-<<<<<<< Updated upstream
-                
-=======
-                    
->>>>>>> Stashed changes
+
                     Spacer()
                 }
                 .padding()
