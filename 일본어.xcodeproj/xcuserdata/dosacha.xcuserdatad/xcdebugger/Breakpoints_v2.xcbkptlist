@@ -3,22 +3,4 @@
    uuid = "237AC3DD-DFA1-4FB0-AEA2-6AA368354873"
    type = "1"
    version = "2.0">
-   <Breakpoints>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B7394672-3533-496A-AEC1-9CA36EC68AE3"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "&#x110b;&#x1175;&#x11af;&#x1107;&#x1169;&#x11ab;&#x110b;&#x1165;/Learning Screens/KanaSectionView/StrokeOrderView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "15"
-            endingLineNumber = "15"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-   </Breakpoints>
 </Bucket>

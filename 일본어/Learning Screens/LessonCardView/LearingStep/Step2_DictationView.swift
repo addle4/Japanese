@@ -1,20 +1,5 @@
-
 import SwiftUI
 
-// MARK: - Step 1: 몰입해서 듣기
-struct Step1_ListeningView: View {
-    var onComplete: () -> Void
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Step 1: 몰입해서 듣기").font(.title).fontWeight(.bold).foregroundColor(.white).padding(.top, 30)
-            Text("자막 없이 장면에 집중하며 들어보세요.").font(.subheadline).foregroundStyle(.white.opacity(0.7))
-            Spacer()
-            Rectangle().fill(Color.black.opacity(0.2)).overlay(Image(systemName: "play.circle.fill").font(.system(size: 44)).foregroundColor(.white.opacity(0.5))).frame(height: 250).cornerRadius(20).padding(.horizontal)
-            Spacer()
-            AppButton(title: "내용 파악 완료! 다음으로", action: onComplete)
-        }.transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-    }
-}
 // MARK: - Step 2: 받아쓰기 (전면 수정)
 
 // [수정된 부분] Equatable 프로토콜 추가
@@ -304,76 +289,5 @@ fileprivate class HapticManager {
     func notification(type: UINotificationFeedbackGenerator.FeedbackType) {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(type)
-    }
-}
-
-
-
-struct Step3_SentenceBuilderView: View {
-    var onComplete: () -> Void
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Step 3: 문장 완성하기").font(.title).fontWeight(.bold).foregroundColor(.white).padding(.top, 30)
-            Text("단어를 순서에 맞게 배열하여 문장을 완성하세요.").font(.subheadline).foregroundStyle(.white.opacity(0.7)).multilineTextAlignment(.center)
-            Spacer()
-            Text("문장 완성 UI 영역").foregroundColor(.gray).frame(height: 250)
-            Spacer()
-            AppButton(title: "제출하기", action: onComplete)
-        }.transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-    }
-}
-struct Step4_VocabularyView: View {
-    var onComplete: () -> Void
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Step 4: 어휘/문법 학습").font(.title).fontWeight(.bold).foregroundColor(.white).padding(.top, 30)
-            Text("장면에 나온 주요 표현이에요!").font(.subheadline).foregroundStyle(.white.opacity(0.7))
-            Spacer()
-            Text("어휘/문법 UI 영역").foregroundColor(.gray).frame(height: 250)
-            Spacer()
-            AppButton(title: "모두 학습했어요", action: onComplete)
-        }.transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-    }
-}
-struct Step5_ShadowingView: View {
-    var onComplete: () -> Void
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Step 5: 따라 말하기").font(.title).fontWeight(.bold).foregroundColor(.white).padding(.top, 30)
-            Text("원어민 발음을 듣고 따라 말해보세요.").font(.subheadline).foregroundStyle(.white.opacity(0.7))
-            Spacer()
-            Image(systemName: "mic.circle.fill").font(.system(size: 80)).foregroundColor(.accentPink)
-            Spacer()
-            AppButton(title: "녹음 완료!", action: onComplete)
-        }.transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-    }
-}
-struct Step6_CompositionView: View {
-    var onComplete: () -> Void
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Step 6: 응용 작문").font(.title).fontWeight(.bold).foregroundColor(.white).padding(.top, 30)
-            Text("배운 표현을 사용해 문장을 만들어보세요.").font(.subheadline).foregroundStyle(.white.opacity(0.7))
-            Spacer()
-            Text("작문 UI 영역").foregroundColor(.gray).frame(height: 250)
-            Spacer()
-            AppButton(title: "학습 완료!", backgroundColor: .green, action: onComplete)
-        }.transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-    }
-}
-struct CompletionView: View {
-    var onRestart: () -> Void, onExit: () -> Void
-    var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            Image(systemName: "checkmark.circle.fill").font(.system(size: 80)).foregroundColor(.green)
-            Text("학습 완료!").font(.largeTitle).fontWeight(.bold).foregroundColor(.white)
-            Text("오늘의 장면 학습을 모두 마쳤습니다.").foregroundStyle(.white.opacity(0.7))
-            Spacer()
-            VStack(spacing: 15) {
-                AppButton(title: "처음으로 돌아가기", backgroundColor: .accentBlue, action: onRestart)
-                AppButton(title: "메인으로 돌아가기", backgroundColor: .cardBackground, action: onExit)
-            }
-        }.transition(.opacity)
     }
 }
