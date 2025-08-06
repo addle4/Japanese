@@ -8,13 +8,30 @@ class PlayerViewModel: ObservableObject {
     }
 
     let player: AVPlayer
+    private var isInFullscreen: Bool = false
 
     init() {
-        if let url = Bundle.main.url(forResource: "신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE]", withExtension: "mp4") {
+        if let url = Bundle.main.url(forResource: "ハイキュー北信介名言 [it3tKC0ycu4] 2", withExtension: "mp4") {
             self.player = AVPlayer(url: url)
         } else {
             self.player = AVPlayer()
         }
+
+        // 전체화면 상태 감지
+        NotificationCenter.default.addObserver(self, selector: #selector(enteredFullscreen), name: UIWindow.didBecomeVisibleNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(exitedFullscreen), name: UIWindow.didBecomeHiddenNotification, object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func enteredFullscreen() {
+        isInFullscreen = true
+    }
+
+    @objc private func exitedFullscreen() {
+        isInFullscreen = false
     }
 
     func play() {
@@ -23,6 +40,9 @@ class PlayerViewModel: ObservableObject {
     }
 
     func pause() {
-        player.pause()
+        // 전체화면 중일 때는 일시정지하지 않음
+        if !isInFullscreen {
+            player.pause()
+        }
     }
 }
