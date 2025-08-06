@@ -17,7 +17,17 @@ struct LearningFlowView: View {
 
     var body: some View {
         ZStack {
-            Color.darkBackground.ignoresSafeArea()
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 255 / 255, green: 220 / 255, blue: 230 / 255), // #CCBFE0
+                    .white
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            
+            
             VStack(spacing: 0) {
                 HStack {
                     Button(action: { dismiss() }) {

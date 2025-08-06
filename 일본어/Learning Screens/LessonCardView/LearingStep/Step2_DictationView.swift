@@ -36,7 +36,15 @@ struct Step2_DictationView: View {
     var body: some View {
         ZStack {
             // 밝은 배경색
-            Color(red: 253/255, green: 252/255, blue: 242/255).ignoresSafeArea()
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 255 / 255, green: 220 / 255, blue: 230 / 255), // #CCBFE0
+                    .white
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
             
             VStack(spacing: 20) {
                 HeaderAndVideoView()
