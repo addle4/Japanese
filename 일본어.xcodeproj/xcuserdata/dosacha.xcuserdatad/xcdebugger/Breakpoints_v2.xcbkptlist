@@ -7,15 +7,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "B7394672-3533-496A-AEC1-9CA36EC68AE3"
+            uuid = "320811D1-7F8B-41EB-83C7-D4DF842AFDD7"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "&#x110b;&#x1175;&#x11af;&#x1107;&#x1169;&#x11ab;&#x110b;&#x1165;/Learning Screens/KanaSectionView/StrokeOrderView.swift"
+            filePath = "&#x110b;&#x1175;&#x11af;&#x1107;&#x1169;&#x11ab;&#x110b;&#x1165;/Learning Screens/LessonCardView/LearningFlowView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "15"
-            endingLineNumber = "15"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
