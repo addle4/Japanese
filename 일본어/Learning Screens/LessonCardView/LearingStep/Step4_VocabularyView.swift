@@ -1,14 +1,18 @@
+// Step4_VocabularyView.swift
+
 import SwiftUI
 import AVKit
 
 struct Step4_VocabularyView: View {
     var onComplete: () -> Void
     @StateObject private var viewModel = PlayerViewModel()
+    @StateObject private var recognizer = SpeechRecognizer()
+
+    let targetSentence = "俺がいればお前は最強だ"
 
     var body: some View {
         ZStack {
             VStack(spacing: 10) {
-                // 상단 제목 및 설명
                 Text("Step 4 : 따라 말하기")
                     .font(.title)
                     .fontWeight(.bold)
@@ -19,31 +23,21 @@ struct Step4_VocabularyView: View {
                     .font(.subheadline)
                     .foregroundColor(.gray)
 
-                // Step1 과 동일한 위치를 맞추기 위해 고정 spacer
                 Spacer().frame(height: 25)
 
-                // 영상
                 CustomAVPlayerView(player: viewModel.player)
                     .frame(height: 250)
                     .cornerRadius(20)
                     .padding(.horizontal)
 
-                // 표현 문장 (일본어 강조)
                 HStack(spacing: 0) {
-                    Text("俺")
-                        .foregroundColor(.red)
-                    Text("が ")
-                        .foregroundColor(.black)
-                    Text("いれば ")
-                        .foregroundColor(.pink)
-                    Text("お前")
-                        .foregroundColor(.purple)
-                    Text("は ")
-                        .foregroundColor(.black)
-                    Text("最強")
-                        .foregroundColor(.red)
-                    Text("だ！")
-                        .foregroundColor(.black)
+                    Text("俺").foregroundColor(.red)
+                    Text("が ").foregroundColor(.black)
+                    Text("いれば ").foregroundColor(.pink)
+                    Text("お前").foregroundColor(.purple)
+                    Text("は ").foregroundColor(.black)
+                    Text("最強").foregroundColor(.red)
+                    Text("だ！").foregroundColor(.black)
                 }
                 .font(.title3)
                 .fontWeight(.bold)
@@ -52,35 +46,49 @@ struct Step4_VocabularyView: View {
                 .cornerRadius(12)
                 .padding(.top, 10)
 
-                // 한국어 해석
                 Text("내가 있으면 너는 최강이야!")
                     .font(.body)
                     .foregroundColor(.black)
 
                 Spacer()
 
-                // 마이크 버튼
+                // 마이크 버튼 (Lottie 애니메이션 사용)
                 Button(action: {
-                    // 녹음 또는 다음 단계
+                    if recognizer.isRecording {
+                        recognizer.stopRecording()
+                    } else {
+                        recognizer.startRecording()
+                    }
                 }) {
-                    Image(systemName: "mic.fill")
-                        .font(.system(size: 30))
-                        .foregroundColor(.white)
-                        .padding(30)
-                        .background(Color(red: 1.0, green: 0.5, blue: 0.6))
-                        .clipShape(Circle())
+                    ZStack {
+                        // 뒷 배경 Circle (고정 색상)
+                        Circle()
+                            .fill(Color(red: 1.0, green: 0.5, blue: 0.6))
+                            .frame(width: 100, height: 100)
+
+                        // Lottie 애니메이션
+                        LottieView(animationName: "Gradient Music Mic", isPlaying: $recognizer.isRecording)
+                            .frame(width: 100, height: 100)
+                            .scaleEffect(1.1)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle()) // 클릭 애니메이션 방지
+                if !recognizer.recognizedText.isEmpty {
+                    Text("🗣 인식된 문장: \(recognizer.recognizedText)")
+                        .font(.footnote)
+                        .padding(.top, 8)
+
+                    Text("정확도: \(recognizer.calculateSimilarity(to: targetSentence))%")
+                        .font(.headline)
+                        .foregroundColor(.green)
                 }
 
                 Spacer(minLength: 20)
-                
+
                 AppButton(title: "제출하기", action: onComplete)
             }
-            .onAppear {
-                viewModel.play()
-            }
-            .onDisappear {
-                viewModel.pause()
-            }
+            .onAppear { viewModel.play() }
+            .onDisappear { viewModel.pause() }
             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
         }
     }
