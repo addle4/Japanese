@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - 문자 상세 정보 뷰 (변경 없음)
+// MARK: - 문자 상세 정보 뷰
 struct KanaDetailView: View {
     let character: KanaCharacter
     var onClose: () -> Void
@@ -70,3 +70,4 @@ struct KanaDetailView: View {
         )
     }
 }
+

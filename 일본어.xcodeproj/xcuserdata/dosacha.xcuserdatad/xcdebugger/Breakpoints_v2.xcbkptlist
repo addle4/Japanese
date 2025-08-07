@@ -3,4 +3,22 @@
    uuid = "237AC3DD-DFA1-4FB0-AEA2-6AA368354873"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "320811D1-7F8B-41EB-83C7-D4DF842AFDD7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "&#x110b;&#x1175;&#x11af;&#x1107;&#x1169;&#x11ab;&#x110b;&#x1165;/Learning Screens/LessonCardView/LearningFlowView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

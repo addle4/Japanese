@@ -1,6 +1,5 @@
 import SwiftUI
-
-// MARK: - 획순 표시 뷰 (변경 없음)
+// MARK: - 획순 표시 뷰
 struct StrokeOrderView: View {
     let character: String
 
@@ -20,8 +19,9 @@ struct StrokeOrderView: View {
             }
         }
         .padding()
-        .background(Color.darkBackground.opacity(0.5))
+        .background(Color.darkBackground)
         .cornerRadius(15)
         .foregroundColor(.white.opacity(0.8))
     }
 }
+
