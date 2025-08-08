@@ -52,44 +52,72 @@ struct Step4_VocabularyView: View {
 
                 Spacer()
 
-                // 마이크 버튼 (Lottie 애니메이션 사용)
-                Button(action: {
+                Button {
                     if recognizer.isRecording {
                         recognizer.stopRecording()
                     } else {
                         recognizer.startRecording()
                     }
-                }) {
+                } label: {
                     ZStack {
-                        // 뒷 배경 Circle (고정 색상)
                         Circle()
-                            .fill(Color(red: 1.0, green: 0.5, blue: 0.6))
+                            .fill(recognizer.isRecording
+                                  ? Color(red: 1.0, green: 0.45, blue: 0.55)
+                                  : Color(red: 1.0, green: 0.86, blue: 0.90))
                             .frame(width: 100, height: 100)
+                            .shadow(radius: recognizer.isRecording ? 8 : 2)
+                            .animation(.easeInOut(duration: 0.2), value: recognizer.isRecording)
 
-                        // Lottie 애니메이션
                         LottieView(animationName: "Gradient Music Mic", isPlaying: $recognizer.isRecording)
                             .frame(width: 100, height: 100)
-                            .scaleEffect(1.1)
+                            .scaleEffect(recognizer.isRecording ? 1.12 : 1.0)
+                            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: recognizer.isRecording)
                     }
                 }
-                .buttonStyle(PlainButtonStyle()) // 클릭 애니메이션 방지
-                if !recognizer.recognizedText.isEmpty {
-                    Text("🗣 인식된 문장: \(recognizer.recognizedText)")
-                        .font(.footnote)
-                        .padding(.top, 8)
+                .buttonStyle(.plain)
+                .zIndex(1)
 
-                    Text("정확도: \(recognizer.calculateSimilarity(to: targetSentence))%")
-                        .font(.headline)
-                        .foregroundColor(.green)
+                // 인식된 문장 (공백만인 경우 숨김)
+                let shownText = recognizer.recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !shownText.isEmpty {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: "text.bubble.fill")
+                            .font(.footnote)
+                            .foregroundColor(.accentBlue)
+
+                        Text(shownText)
+                            .font(.footnote)
+                            .foregroundColor(.black)
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(10)
+                    .background(Color.white.opacity(0.95))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
                 }
+
+                Text("정확도: \(recognizer.calculateSimilarity(to: targetSentence))%")
+                    .font(.headline)
+                    .foregroundColor(.green)
 
                 Spacer(minLength: 20)
 
                 AppButton(title: "제출하기", action: onComplete)
             }
             .onAppear { viewModel.play() }
-            .onDisappear { viewModel.pause() }
-            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+            .onDisappear {
+                viewModel.pause()
+                if recognizer.isRecording { recognizer.stopRecording() }
+            }
+            .transition(.asymmetric(insertion: .move(edge: .trailing),
+                                    removal: .move(edge: .leading)))
+        }
+        .onChange(of: recognizer.recognizedText) { newValue in
+            print("🗣 인식 갱신: \(newValue)")
         }
     }
 }
