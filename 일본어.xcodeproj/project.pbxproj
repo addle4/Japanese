@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A408FCD62E3E0B4E00F8D3CF /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A408FCD52E3E0B4E00F8D3CF /* FirebaseAuth */; };
+		A4AC3B282E449FB400BC8537 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = A4AC3B272E449FB400BC8537 /* Lottie */; };
 		A4C0616C2E39EF6800DCB410 /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A4C0616B2E39EF6800DCB410 /* KakaoSDK */; };
 		A4C0616E2E39EF6800DCB410 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A4C0616D2E39EF6800DCB410 /* KakaoSDKAuth */; };
 		A4C061732E39FCD500DCB410 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A4C061722E39FCD500DCB410 /* GoogleSignIn */; };
@@ -17,6 +18,7 @@
 		A4C0617C2E3A014F00DCB410 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A4C0617B2E3A014F00DCB410 /* GoogleService-Info.plist */; };
 		A4D716B02E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A4D716AF2E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 */; };
 		A4D7191D2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 */; };
+		A4D71B832E4475C200CF451A /* Gradient Music Mic.json in Resources */ = {isa = PBXBuildFile; fileRef = A4D71B822E4475C200CF451A /* Gradient Music Mic.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,7 @@
 		A4C0617B2E3A014F00DCB410 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A4D716AF2E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4"; sourceTree = "<group>"; };
 		A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ハイキュー北信介名言 [it3tKC0ycu4].mp4"; sourceTree = "<group>"; };
+		A4D71B822E4475C200CF451A /* Gradient Music Mic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Gradient Music Mic.json"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -46,6 +49,7 @@
 				A4C061732E39FCD500DCB410 /* GoogleSignIn in Frameworks */,
 				A408FCD62E3E0B4E00F8D3CF /* FirebaseAuth in Frameworks */,
 				A4C061752E39FCD500DCB410 /* GoogleSignInSwift in Frameworks */,
+				A4AC3B282E449FB400BC8537 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,6 +59,7 @@
 		A4C061492E39E6BB00DCB410 = {
 			isa = PBXGroup;
 			children = (
+				A4D71B822E4475C200CF451A /* Gradient Music Mic.json */,
 				A4D7191C2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 */,
 				A4D716AF2E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 */,
 				A4C0617B2E3A014F00DCB410 /* GoogleService-Info.plist */,
@@ -98,6 +103,7 @@
 				A4C061772E39FFA800DCB410 /* FirebaseAI */,
 				A4C061792E39FFA800DCB410 /* FirebaseAnalyticsCore */,
 				A408FCD52E3E0B4E00F8D3CF /* FirebaseAuth */,
+				A4AC3B272E449FB400BC8537 /* Lottie */,
 			);
 			productName = "일본어";
 			productReference = A4C061522E39E6BB00DCB410 /* 일본어.app */;
@@ -131,6 +137,7 @@
 				A4C0616A2E39EF6800DCB410 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 				A4C061712E39FCD500DCB410 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				A4C061762E39FFA800DCB410 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				A4AC3B262E449FB400BC8537 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A4C061532E39E6BB00DCB410 /* Products */;
@@ -149,6 +156,7 @@
 			files = (
 				A4D716B02E4331AC00CF451A /* 신 도라에몽 오프닝_꿈을 이루어줘(일본어)(발음, 자막 포함) [FHm9tuXz1uE].mp4 in Resources */,
 				A4C0617C2E3A014F00DCB410 /* GoogleService-Info.plist in Resources */,
+				A4D71B832E4475C200CF451A /* Gradient Music Mic.json in Resources */,
 				A4D7191D2E4369B700CF451A /* ハイキュー北信介名言 [it3tKC0ycu4].mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -296,7 +304,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "---------Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "음성 녹음을 위해 마이크 접근이 필요합니다.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "음성 인식을 위해 접근이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -326,7 +337,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "---------Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "음성 녹음을 위해 마이크 접근이 필요합니다.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "음성 인식을 위해 접근이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -369,6 +383,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A4AC3B262E449FB400BC8537 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
 		A4C0616A2E39EF6800DCB410 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
@@ -400,6 +422,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A4C061762E39FFA800DCB410 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		A4AC3B272E449FB400BC8537 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A4AC3B262E449FB400BC8537 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 		A4C0616B2E39EF6800DCB410 /* KakaoSDK */ = {
 			isa = XCSwiftPackageProductDependency;
