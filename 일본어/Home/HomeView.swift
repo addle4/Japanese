@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @State private var isShowingLearningView = false
+    @State private var stats = LearningStats.preview   // 실제 데이터 연결 전 임시
     
     init() {
         let navAppearance = UINavigationBarAppearance()
@@ -33,6 +34,15 @@ struct HomeView: View {
                         isShowingLearningView = true
                     }
                     
+                    
+                    // 학습 정보 카드 → 탭하면 상세 화면
+                    NavigationLink {
+                        LearningOverviewView(stats: stats, onStartToday: { isShowingLearningView = true })
+                    } label: {
+                        LearningInfoCardView(stats: stats)   // onTap 파라미터 제거된 버전
+                    }
+                    .buttonStyle(.plain) // 선택 사항
+                    
                     KanaSectionView()
                     
                     // 임시 버튼
@@ -46,13 +56,13 @@ struct HomeView: View {
                             .cornerRadius(12)
                     }
                     .padding(.horizontal)
-
+                    
                     Spacer()
                 }
                 .padding()
             }
         }
-        .navigationTitle("홈")
+        .navigationTitle("홈") // 공백 하나
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $isShowingLearningView) {
             LearningFlowView()
