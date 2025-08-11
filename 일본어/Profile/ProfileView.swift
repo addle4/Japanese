@@ -7,7 +7,6 @@ struct ProfileView: View {
     @State private var totalDays: Int = 9
     @State private var avatar: Image? = Image("profile")
     
-    // 캘린더 색상 상수
     private let headerColor = Color(customHex: "#FFD6D6")
     private let panelColor  = Color(customHex: "#ECECEC")
     private let learnedDot  = Color(customHex: "#FFD6D6")
@@ -15,82 +14,83 @@ struct ProfileView: View {
     private let todayDot    = Color(customHex: "#BDBDBD")
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text("프로필 설정")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(.black)
-                .padding(.top, 14)
-
-            ZStack(alignment: .bottom) {
-                Color(customHex: "#FFE3E3")
-                    .frame(height: 160)
-                    .ignoresSafeArea(edges: .top)
-
-                ZStack {
-                    Circle()
-                        .fill(Color(customHex: "#FFD6BA"))
-                    if let avatar {
-                        avatar
-                            .resizable()
-                            .scaledToFit()
-                            .padding(3)
-                    } else {
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(24)
-                            .foregroundColor(.gray.opacity(0.6))
-                    }
-                }
-                .frame(width: 120, height: 120)
-                .overlay(
-                    Circle().stroke(Color.black.opacity(0.06), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
-                .offset(y: 40)
-            }
-            .padding(.bottom, 40)
-
-            HStack(spacing: 8) {
-                Text(name)
-                    .font(.system(size: 24, weight: .heavy))
+        ScrollView(showsIndicators: false) { // 스크롤 가능하게 변경
+            VStack(spacing: 0) {
+                Text("프로필 설정")
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(.black)
-                Button {
-                } label: {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.gray)
+                    .padding(.top, 14)
+
+                ZStack(alignment: .bottom) {
+                    Color(customHex: "#FFE3E3")
+                        .frame(height: 160)
+                        .ignoresSafeArea(edges: .top)
+
+                    ZStack {
+                        Circle()
+                            .fill(Color(customHex: "#FFD6BA"))
+                        if let avatar {
+                            avatar
+                                .resizable()
+                                .scaledToFit()
+                                .padding(3)
+                        } else {
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(24)
+                                .foregroundColor(.gray.opacity(0.6))
+                        }
+                    }
+                    .frame(width: 120, height: 120)
+                    .overlay(
+                        Circle().stroke(Color.black.opacity(0.06), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0), radius: 8, y: 4)
+                    .offset(y: 40)
                 }
-                .buttonStyle(.plain)
+                .padding(.bottom, 40)
+
+                HStack(spacing: 8) {
+                    Text(name)
+                        .font(.system(size: 24, weight: .heavy))
+                        .foregroundColor(.black)
+                    Button {
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.gray)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 8)
+
+                StatsRow(
+                    totalMinutes: totalMinutes,
+                    streakDays: streakDays,
+                    totalDays: totalDays
+                )
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                
+                CalendarView(
+                    headerColor: headerColor,
+                    panelColor: panelColor,
+                    learnedDot: learnedDot,
+                    normalDot: normalDot,
+                    todayDot: todayDot
+                )
+                .padding(.top, 20)
+
+                Spacer(minLength: 20) 
             }
-            .padding(.top, 8)
-
-            StatsRow(
-                totalMinutes: totalMinutes,
-                streakDays: streakDays,
-                totalDays: totalDays
-            )
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-            
-            // 예시: 캘린더 뷰 추가 (원하는 위치에)
-            CalendarView(
-                headerColor: headerColor,
-                panelColor: panelColor,
-                learnedDot: learnedDot,
-                normalDot: normalDot,
-                todayDot: todayDot
-            )
-            .padding(.top, 20)
-
-            Spacer()
+            .background(Color.white)
         }
-        .background(Color.white)
         .navigationBarTitle("프로필 설정", displayMode: .inline)
     }
 }
 
-// MARK: - 통계 3칸 컴포넌트 (세로 정렬)
+// MARK: - 통계 행 뷰
 private struct StatsRow: View {
     let totalMinutes: Int
     let streakDays: Int
@@ -158,7 +158,7 @@ private struct StatItem: View {
     }
 }
 
-// MARK: - 캘린더 뷰 예시
+// MARK: - 캘린더 뷰
 struct CalendarView: View {
     let headerColor: Color
     let panelColor: Color
@@ -166,6 +166,9 @@ struct CalendarView: View {
     let normalDot: Color
     let todayDot: Color
 
+    let days = Array(1...31)
+    let highlightedDays: Set<Int> = [1, 2, 4, 5, 6, 7, 8]
+    
     var body: some View {
         VStack(spacing: 0) {
             Text("8月")
@@ -174,12 +177,28 @@ struct CalendarView: View {
                 .padding()
                 .background(headerColor)
                 .cornerRadius(8, corners: [.topLeft, .topRight])
-            
-            VStack {
-                Text("여기에 1234556454날짜들")
-                    .padding()
+
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
+                ForEach(0..<6, id: \.self) { row in
+                    ForEach(0..<7, id: \.self) { column in
+                        let dayIndex = row * 7 + column - 4
+
+                        if dayIndex >= 1 && dayIndex <= 31 {
+                            Text("\(dayIndex)")
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    highlightedDays.contains(dayIndex) ? learnedDot : normalDot
+                                )
+                                .foregroundColor(.black)
+                                .clipShape(Circle())
+                        } else {
+                            Text("")
+                                .frame(width: 36, height: 36)
+                        }
+                    }
+                }
             }
-            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
             .background(panelColor)
             .cornerRadius(8, corners: [.bottomLeft, .bottomRight])
         }
@@ -187,7 +206,7 @@ struct CalendarView: View {
     }
 }
 
-// MARK: - HEX Color 확장
+// MARK: - HEX 컬러 확장
 extension Color {
     init(customHex hex: String) {
         let s = hex.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -203,7 +222,7 @@ extension Color {
     }
 }
 
-// MARK: - 모서리별 코너 적용 확장
+// MARK: - 모서리 별 cornerRadius 확장
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
