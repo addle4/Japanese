@@ -11,6 +11,7 @@ enum QuizState: Equatable {
 // MARK: - Step 2 받아쓰기 뷰
 struct Step2_DictationView: View {
     var onComplete: () -> Void
+    @ObservedObject var viewModel: PlayerViewModel
 
     struct QuizChoice: Identifiable, Equatable {
         let id = UUID()
@@ -29,12 +30,13 @@ struct Step2_DictationView: View {
     ]
 
     var body: some View {
-            VStack(spacing: 20) {
+            VStack(spacing: 10) {
                 
-                HeaderAndVideoView()
-                    .padding(.top, 20)
+                HeaderAndVideoView(viewModel: viewModel)
+                
                 Spacer()
                 SentenceAnswerAreaView(quizState: $quizState, selectedChoice: $selectedChoice)
+                    .padding(.horizontal, 24) // VStack에 달려있던 padding 제거하고 여기에만 직접 padding
 
                 Spacer().frame(height: 10) // 문장 단어 카드 사이 간격 진짜 뻐큐먹어
                 ChoiceButtonsView(
@@ -47,7 +49,6 @@ struct Step2_DictationView: View {
                 BottomButtonView(quizState: $quizState, onComplete: onComplete)
                 
             }
-            .padding(.horizontal, 24)
     }
 
     private func handleChoiceSelection(choice: QuizChoice) {
@@ -75,22 +76,26 @@ struct Step2_DictationView: View {
 }
 
 fileprivate struct HeaderAndVideoView: View {
-    var body: some View {
-        VStack(spacing: 11) {
-            Text("Step 2 : 빈칸 채우기").font(.system(size: 24, weight: .bold))
-                .padding(.top, 30)
-            Text("들리는 대로 빈칸을 채워보세요").font(.subheadline).foregroundColor(.gray)
+    @ObservedObject var viewModel: PlayerViewModel
 
-            ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(UIColor.systemGray6))
-                    .frame(height: 180)
-                    .overlay(
-                        Image(systemName: "play.circle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.gray.opacity(0.5))
-                    )
-            }
+    var body: some View {
+        VStack(spacing: 10) {
+            Text("Step 2 : 빈칸 채우기")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.black)
+                .padding(.top, 30)
+
+            Text("들리는 대로 빈칸을 채워보세요")
+                .font(.subheadline)
+                .foregroundStyle(.gray)
+
+            Spacer().frame(height: 25)
+
+            CustomAVPlayerView(player: viewModel.player)
+                .frame(height: 250)
+                .cornerRadius(20)
+                .padding(.horizontal)
         }
     }
 }
