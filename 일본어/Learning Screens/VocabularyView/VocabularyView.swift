@@ -1,13 +1,4 @@
 import SwiftUI
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 만약 프로젝트에 아래 Notification 이름이 아직 정의되어 있지 않다면
-// 주석을 해제해서 함께 사용하세요. (다른 파일에 이미 있으면 절대 중복 정의하지 마세요)
-//extension Notification.Name {
-//    static let vocabBookmarkChanged = Notification.Name("vocabBookmarkChanged")
-//}
-// ─────────────────────────────────────────────────────────────────────────────
-
 struct Word: Identifiable, Equatable {
     let id = UUID()
     let hiragana: String
