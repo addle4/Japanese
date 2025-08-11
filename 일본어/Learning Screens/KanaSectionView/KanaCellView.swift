@@ -7,16 +7,15 @@ struct KanaCellView: View {
         VStack(spacing: 5) {
             Text(character.kana)
                 .font(.system(size: 36))
-                .foregroundColor(.white)
+                .foregroundColor(.black)                  // 🔹 글씨 검정
             Text(character.pronunciation)
                 .font(.footnote)
                 .fontWeight(.medium)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(Color.black.opacity(0.6)) // 🔹 회색 보조 텍스트
         }
         .frame(minWidth: 0, maxWidth: .infinity)
         .frame(height: 80)
-        .background(Color.cardBackground)
-        .cornerRadius(10)
+        .background(Color.white) // 🔹 버튼 배경 흰색
+        .cornerRadius(6)         // 🔹 모서리 살짝 둥글게
     }
 }
-

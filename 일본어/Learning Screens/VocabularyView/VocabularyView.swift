@@ -1,5 +1,13 @@
 import SwiftUI
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 만약 프로젝트에 아래 Notification 이름이 아직 정의되어 있지 않다면
+// 주석을 해제해서 함께 사용하세요. (다른 파일에 이미 있으면 절대 중복 정의하지 마세요)
+//extension Notification.Name {
+//    static let vocabBookmarkChanged = Notification.Name("vocabBookmarkChanged")
+//}
+// ─────────────────────────────────────────────────────────────────────────────
+
 struct Word: Identifiable, Equatable {
     let id = UUID()
     let hiragana: String
@@ -14,28 +22,21 @@ struct VocabularyView: View {
         case learning
         case conversation
     }
-    
-    
+
     @State private var selectedTab: TabType = .learning
     @State private var isAllSelected: Bool = false
-    
+
     @State private var learningWords: [Word] = [
-        Word(hiragana: "けつえき", kanji: "血液", meaning: "혈액", day: "Day1"),
-        Word(hiragana: "せいじょう", kanji: "正常", meaning: "정상", day: "Day1"),
-        Word(hiragana: "さんそ", kanji: "酸素", meaning: "산소", day: "Day1"),
-        Word(hiragana: "さいきょう", kanji: "最強", meaning: "최강", day: "Day1"),
-        Word(hiragana: "はんぶん", kanji: "半分", meaning: "절반", day: "Day1"),
-        Word(hiragana: "のう", kanji: "脳", meaning: "뇌", day: "Day1"),
-        Word(hiragana: "じんせい", kanji: "人生", meaning: "인생", day: "Day1")
+
     ]
-    
+
     @State private var conversationWords: [Word] = [
-        Word(hiragana: "きぶん",kanji: "気分", meaning: "기분", day: "Day1"),
+        Word(hiragana: "きぶん", kanji: "気分", meaning: "기분", day: "Day1"),
         Word(hiragana: "きょう", kanji: "今日", meaning: "오늘", day: "Day1"),
         Word(hiragana: "いい", kanji: "いい", meaning: "좋다", day: "Day1"),
         Word(hiragana: "どう", kanji: "どう", meaning: "어떤가", day: "Day1")
     ]
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // 상단 제목
@@ -47,8 +48,8 @@ struct VocabularyView: View {
             }
             .frame(maxWidth: .infinity)
             .background(Color.pink.opacity(0.2))
-            
-            // 가운데 Segmented Tab
+
+            // 세그먼트 버튼
             HStack {
                 Spacer()
                 HStack(spacing: 0) {
@@ -61,7 +62,7 @@ struct VocabularyView: View {
                             .cornerRadius(5)
                             .foregroundColor(.black)
                     }
-                    
+
                     Button(action: { selectedTab = .conversation }) {
                         Text("오늘의 회화")
                             .font(.system(size: 14))
@@ -69,7 +70,7 @@ struct VocabularyView: View {
                             .frame(width: 100, height: 20)
                             .background(selectedTab == .conversation ? Color.white : Color.clear)
                             .cornerRadius(5)
-                            .foregroundColor(.black) 
+                            .foregroundColor(.black)
                     }
                 }
                 .padding(3)
@@ -79,10 +80,9 @@ struct VocabularyView: View {
                 Spacer()
             }
             .padding(.top, 10)
-            
-            // 휴지통 + 전체 선택
+
+            // 삭제/전체선택 바
             HStack {
-                // 휴지통 버튼
                 Button(action: {
                     deleteSelectedWords()
                 }) {
@@ -94,16 +94,13 @@ struct VocabularyView: View {
                             .foregroundColor(.white)
                     }
                 }
-                
+
                 Spacer()
-                
-                // 전체 선택 버튼
                 Button(action: {
                     isAllSelected.toggle()
                     selectAllWords(isAllSelected)
                 }) {
                     HStack(spacing: 4) {
-                        
                         Image(systemName: "checkmark")
                             .foregroundColor(.white)
                             .font(.system(size: 10, weight: .bold))
@@ -111,12 +108,9 @@ struct VocabularyView: View {
                                 Circle()
                                     .fill(isAllSelected ?
                                           Color(red: 1.0, green: 0.42, blue: 0.51) :
-                                            Color(white: 0.82)) // 연한 회색
+                                          Color(white: 0.82))
                                     .frame(width: 18, height: 18)
                             )
-                        
-                        
-                        
                         Text("전체선택")
                             .font(.footnote)
                             .foregroundColor(.gray)
@@ -126,10 +120,10 @@ struct VocabularyView: View {
             .padding(.horizontal)
             .padding(.top, 8)
             .padding(.bottom, 6)
-            
+
             Divider()
-            
-            // 단어 리스트
+
+            // 리스트
             List {
                 ForEach(currentWordsBinding) { $word in
                     HStack(alignment: .top, spacing: 10) {
@@ -142,29 +136,25 @@ struct VocabularyView: View {
                                 .background(
                                     Circle()
                                         .fill(word.isSelected ?
-                                              Color(red: 1.0, green: 0.42, blue: 0.51) :  // FF6B81
-                                              Color(white: 0.82))                        // D1D1D1
+                                              Color(red: 1.0, green: 0.42, blue: 0.51) :
+                                              Color(white: 0.82))
                                         .frame(width: 28, height: 28)
                                 )
                         }
                         .buttonStyle(PlainButtonStyle())
                         .frame(width: 28, height: 28)
-                        
+
                         VStack(alignment: .leading, spacing: 4) {
                             Text(word.hiragana)
                                 .font(.caption)
                                 .foregroundColor(.gray)
-                            
+
                             HStack {
-                                Text(word.kanji)
-                                    .font(.headline)
+                                Text(word.kanji).font(.headline)
                                 Spacer()
-                                Text(word.meaning)
-                                    .font(.subheadline)
+                                Text(word.meaning).font(.subheadline)
                                 Spacer()
-                                Text(word.day)
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                                Text(word.day).font(.caption).foregroundColor(.gray)
                             }
                         }
                     }
@@ -173,12 +163,49 @@ struct VocabularyView: View {
             }
             .listStyle(PlainListStyle())
         }
-    }
-    
+        // ✅ 알림 수신: Step5 → 오늘의 학습, KeywordsScreen → 오늘의 회화
+        .onReceive(NotificationCenter.default.publisher(for: AppNotification.vocabBookmarkChanged)) { note in
+            guard
+                let info = note.userInfo,
+                let hiragana = info["hiragana"] as? String,
+                let kanji = info["kanji"] as? String,
+                let meaning = info["meaning"] as? String,
+                let day = info["day"] as? String,
+                let isOn = info["isOn"] as? Bool
+            else { return }
+
+            // source == "keywords" 이면 회화 탭으로 저장
+            // source 키가 없으면 기본은 '학습'으로 간주 (Step5 호환)
+            let source = (info["source"] as? String) ?? ""
+            let targetIsConversation = (source == "keywords")
+
+            let newWord = Word(hiragana: hiragana, kanji: kanji, meaning: meaning, day: day)
+
+            if targetIsConversation {
+                if isOn {
+                    if !conversationWords.contains(where: { $0.kanji == kanji && $0.hiragana == hiragana }) {
+                        conversationWords.insert(newWord, at: 0) // 맨 위에 추가
+                    }
+                } else {
+                    conversationWords.removeAll { $0.kanji == kanji && $0.hiragana == hiragana }
+                }
+            } else {
+                if isOn {
+                    if !learningWords.contains(where: { $0.kanji == kanji && $0.hiragana == hiragana }) {
+                        learningWords.insert(newWord, at: 0) // 맨 위에 추가
+                    }
+                } else {
+                    learningWords.removeAll { $0.kanji == kanji && $0.hiragana == hiragana }
+                }
+            }
+        }    }
+
+    // 현재 탭의 바인딩 배열
     private var currentWordsBinding: Binding<[Word]> {
         selectedTab == .learning ? $learningWords : $conversationWords
     }
-    
+
+    // 선택 삭제
     private func deleteSelectedWords() {
         if selectedTab == .learning {
             learningWords.removeAll { $0.isSelected }
@@ -186,7 +213,8 @@ struct VocabularyView: View {
             conversationWords.removeAll { $0.isSelected }
         }
     }
-    
+
+    // 전체 선택/해제
     private func selectAllWords(_ select: Bool) {
         if selectedTab == .learning {
             learningWords = learningWords.map {
@@ -203,4 +231,3 @@ struct VocabularyView: View {
         }
     }
 }
-

@@ -12,38 +12,42 @@ struct MainView: View {
     }
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
-                HomeView()
-            }
-            .tabItem {
-                Image(systemName: "house.fill")
-                Text("홈")
-            }
-            .tag(0)
-            
-            VocabularyView()
-                .tabItem {
-                    Image(systemName: "book.fill")
-                    Text("단어장")
-                }
-                .tag(1)
-            
-            ReviewView()
-                .tabItem {
-                    Image(systemName: "flame.fill")
-                    Text("복습")
-                }
-                .tag(2)
-            
-            ProfileView()
 
-                .tabItem {
-                    Image(systemName: "person.fill")
-                    Text("프로필")
-                }
-                .tag(3)
-        }
+               TabView(selection: $selectedTab) {
+                   // 홈
+                   NavigationStack {
+                       HomeView()
+                   }
+                   .tabItem { Label("홈", systemImage: "house") }
+                   .tag(0)
+
+                   // 단어장
+                   NavigationStack {
+                       VocabularyView()
+                   }
+                   .tabItem { Label("단어장", systemImage: "book") }
+                   .tag(1)
+
+                   // 복습
+                   NavigationStack {
+                       ReviewView()
+                   }
+                   .tabItem { Label("복습", systemImage: "flame") }
+                   .tag(2)
+
+                   // 프로필
+                   NavigationStack {
+                       ProfileView()
+                   }
+                   .tabItem { Label("프로필", systemImage: "person.crop.circle") }
+                   .tag(3)
+               }
+               // ✅ 외부(예: KeywordsScreen)에서 보낸 탭 전환 노티만 처리
+               .onReceive(NotificationCenter.default.publisher(for: AppNotification.switchTab)) { note in
+                   if let idx = note.userInfo?["index"] as? Int {
+                       withAnimation { selectedTab = idx }
+                   }
+               }
         .accentColor(.white)
     }
 }
