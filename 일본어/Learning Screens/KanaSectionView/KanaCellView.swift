@@ -15,7 +15,7 @@ struct KanaCellView: View {
         }
         .frame(minWidth: 0, maxWidth: .infinity)
         .frame(height: 80)
-        .background(Color.white) // 🔹 버튼 배경 흰색
+        .background(Color(red: 238/255, green: 238/255, blue: 238/255))// 🔹 버튼 배경회색
         .cornerRadius(6)         // 🔹 모서리 살짝 둥글게
     }
 }

@@ -6,7 +6,7 @@ struct MainView: View {
     init() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(Color.darkBackground)
+        appearance.backgroundColor = UIColor(Color.white)
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
@@ -48,6 +48,6 @@ struct MainView: View {
                        withAnimation { selectedTab = idx }
                    }
                }
-        .accentColor(.white)
+        .accentColor(.blue)
     }
 }

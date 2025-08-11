@@ -99,7 +99,7 @@ struct KanaDetailView: View {
             }
         }
         .padding(28)
-        .background(Color.white) // 카드 배경
+        .background(Color(red: 238/255, green: 238/255, blue: 238/255))// 카드 배경
         .cornerRadius(30)
         .shadow(color: .black.opacity(0.15), radius: 20)
         .padding(30)
