@@ -32,9 +32,6 @@ struct ConversationBubbleView: View {
                     ZStack(alignment: isUser ? .bottomTrailing : .bottomLeading) {
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color.white)
-
-                        BubbleTail(isUser: isUser)
-                            .offset(x: isUser ? 6 : -6, y: 6)
                     }
                 )
                 .overlay(

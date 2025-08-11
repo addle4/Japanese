@@ -23,19 +23,6 @@ struct HeaderView: View {
             }
 
             Spacer()
-
-            HStack(spacing: 5) {
-                Image(systemName: "flame.fill")
-                    .foregroundColor(.accentPink)
-                Text("\(streakCount)")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.black.opacity(0.3))
-            .cornerRadius(20)
         }
     }
 }
