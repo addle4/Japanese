@@ -29,46 +29,46 @@ struct Step2_DictationView: View {
     ]
 
     var body: some View {
-            VStack(spacing: 20) {
-                
-                HeaderAndVideoView()
-                    .padding(.top, 20)
-                Spacer()
-                SentenceAnswerAreaView(quizState: $quizState, selectedChoice: $selectedChoice)
+        VStack(spacing: 20) {
+            HeaderAndVideoView()
+                .padding(.top, 20)
 
-                Spacer().frame(height: 10) // 문장 단어 카드 사이 간격 진짜 뻐큐먹어
-                ChoiceButtonsView(
-                    choices: choices,
-                    quizState: $quizState,
-                    selectedChoice: $selectedChoice,
-                    onSelect: handleChoiceSelection
-                )
-                Spacer()
-                BottomButtonView(quizState: $quizState, onComplete: onComplete)
-                
-            }
-            .padding(.horizontal, 24)
+            Spacer()
+
+            // ✅ 문장카드 (항상 분홍 말풍선 + 점선 빈칸)
+            SentenceAnswerAreaView(quizState: $quizState, selectedChoice: $selectedChoice)
+
+            Spacer().frame(height: 10)
+
+            // ✅ 낱말카드 (분홍 칩, 위 후리가나 / 아래 한자)
+            ChoiceButtonsView(
+                choices: choices,
+                quizState: $quizState,
+                selectedChoice: $selectedChoice,
+                onSelect: handleChoiceSelection
+            )
+
+            Spacer()
+
+            BottomButtonView(quizState: $quizState, onComplete: onComplete)
+        }
+        .padding(.horizontal, 24)
     }
 
     private func handleChoiceSelection(choice: QuizChoice) {
         guard case .initial = quizState else { return }
-
         selectedChoice = choice
 
         if choice.kanji == correctAnswer {
             HapticManager.instance.notification(type: .success)
-            withAnimation(.spring()) {
-                quizState = .correct
-            }
+            withAnimation(.spring()) { quizState = .correct }
         } else {
             HapticManager.instance.notification(type: .error)
             withAnimation(.spring()) {
                 quizState = .incorrect(revealedAnswer: correctAnswer)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                withAnimation(.spring()) {
-                    quizState = .finishedWrongAnswer
-                }
+                withAnimation(.spring()) { quizState = .finishedWrongAnswer }
             }
         }
     }
@@ -77,9 +77,13 @@ struct Step2_DictationView: View {
 fileprivate struct HeaderAndVideoView: View {
     var body: some View {
         VStack(spacing: 11) {
-            Text("Step 2 : 빈칸 채우기").font(.system(size: 24, weight: .bold))
+            Text("Step 2 : 빈칸 채우기")
+                .font(.system(size: 24, weight: .bold))
                 .padding(.top, 30)
-            Text("들리는 대로 빈칸을 채워보세요").font(.subheadline).foregroundColor(.gray)
+
+            Text("들리는 대로 빈칸을 채워보세요")
+                .font(.subheadline)
+                .foregroundColor(.gray)
 
             ZStack {
                 RoundedRectangle(cornerRadius: 16)
@@ -95,51 +99,41 @@ fileprivate struct HeaderAndVideoView: View {
     }
 }
 
+// MARK: - ✅ 문장카드 (디자인 변경)
 fileprivate struct SentenceAnswerAreaView: View {
     @Binding var quizState: QuizState
     @Binding var selectedChoice: Step2_DictationView.QuizChoice?
 
     var body: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 10) {
             Text("俺が いれば お前は")
+                .font(.system(size: 20, weight: .regular))
 
-            ZStack {
-                switch quizState {
-                case .initial:
-                    if let choice = selectedChoice {
-                        ChoiceView(choice: choice)
-                    } else {
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.77, green: 0.77, blue: 0.77), style: StrokeStyle(lineWidth: 1, dash: [4]))
-                            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
-                            .frame(width: 90, height: 40)
-                    }
-                case .incorrect(let revealedAnswer):
-                    Text(revealedAnswer).font(.title3.bold()).foregroundColor(.red)
-                case .correct:
-                    if let choice = selectedChoice {
-                        ChoiceView(choice: choice, isCorrect: true)
-                    }
-                case .finishedWrongAnswer:
-                    Text("最強").font(.title3.bold()).foregroundColor(.blue)
-                }
-            }
-            .frame(width: 100, height: 40)
+            // 이미지처럼: 항상 점선 빈칸 (정답/오답과 무관)
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(
+                    Color(red: 0.77, green: 0.77, blue: 0.77),
+                    style: StrokeStyle(lineWidth: 1, dash: [6])
+                )
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+                .frame(width: 110, height: 36)
 
             Text("だ！")
+                .font(.system(size: 20, weight: .regular))
         }
-        .padding()
-        .font(.title2)
-        .foregroundColor(.black)
-        .background(Color(red: 1.0, green: 0.86, blue: 0.86))
+        .padding(.vertical, 14)
+        .padding(.horizontal, 16)
+        .background(Color(red: 1.0, green: 0.86, blue: 0.86)) // 연분홍 말풍선
         .overlay(
-            RoundedRectangle(cornerRadius: 25)
+            RoundedRectangle(cornerRadius: 22)
                 .stroke(Color(red: 0.77, green: 0.77, blue: 0.77), lineWidth: 1)
         )
-        .cornerRadius(25)
+        .cornerRadius(22)
+        .foregroundColor(.black)
     }
 }
 
+// MARK: - ✅ 낱말 버튼 행 (디자인 변경)
 fileprivate struct ChoiceButtonsView: View {
     let choices: [Step2_DictationView.QuizChoice]
     @Binding var quizState: QuizState
@@ -147,11 +141,16 @@ fileprivate struct ChoiceButtonsView: View {
     let onSelect: (Step2_DictationView.QuizChoice) -> Void
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 18) {
             ForEach(choices) { choice in
-                Button(action: { onSelect(choice) }) {
-                    let isSelected = (selectedChoice == choice)
-                    ChoiceView(choice: choice, isSelected: isSelected, quizState: quizState)
+                Button {
+                    onSelect(choice)
+                } label: {
+                    ChoiceView(
+                        choice: choice,
+                        isSelected: selectedChoice == choice,
+                        quizState: quizState
+                    )
                 }
                 .disabled(quizState != .initial)
             }
@@ -159,6 +158,7 @@ fileprivate struct ChoiceButtonsView: View {
     }
 }
 
+// MARK: - ✅ 낱말칩 (디자인 변경)
 fileprivate struct ChoiceView: View {
     let choice: Step2_DictationView.QuizChoice
     var isSelected: Bool = false
@@ -166,31 +166,37 @@ fileprivate struct ChoiceView: View {
     var quizState: QuizState? = nil
 
     var body: some View {
-        VStack(spacing: 2) {
-            Text(choice.furigana).font(.caption)
-            Text(choice.kanji).font(.title3).bold()
+        VStack(spacing: 4) {
+            Text(choice.furigana)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundColor(.black.opacity(0.75))
+
+            Text(choice.kanji)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.black)
         }
         .padding(.vertical, 10)
-        .padding(.horizontal, 12)
-        .background(getBackgroundColor())
-        .foregroundColor(.black)
+        .padding(.horizontal, 14)
+        .background(backgroundColor)
         .overlay(
-            RoundedRectangle(cornerRadius: 15)
+            RoundedRectangle(cornerRadius: 14)
                 .stroke(Color(red: 0.77, green: 0.77, blue: 0.77), lineWidth: 1)
         )
-        .cornerRadius(15)
-        .shadow(color: .yellow.opacity(0.8), radius: isCorrect ? 10 : 0)
+        .cornerRadius(14)
+        .scaleEffect(isSelected ? 0.98 : 1.0)
+        .animation(.spring(response: 0.25, dampingFraction: 0.85), value: isSelected)
     }
 
-    private func getBackgroundColor() -> Color {
+    private var backgroundColor: Color {
+        // 기본은 연분홍, 선택 후 정답/오답이면 약한 피드백
         guard let state = quizState, isSelected else {
             return Color(red: 1.0, green: 0.86, blue: 0.86)
         }
         switch state {
         case .correct:
-            return .green.opacity(0.3)
+            return Color.green.opacity(0.25)
         case .incorrect:
-            return .red.opacity(0.3)
+            return Color.red.opacity(0.25)
         default:
             return Color(red: 1.0, green: 0.86, blue: 0.86)
         }
@@ -208,7 +214,7 @@ fileprivate struct BottomButtonView: View {
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.accentPink)
+                    .background(Color.accentPink) // 프로젝트 확장 컬러 사용
                     .foregroundColor(.white)
                     .cornerRadius(15)
             }
@@ -229,3 +235,4 @@ fileprivate class HapticManager {
         generator.notificationOccurred(type)
     }
 }
+ 
