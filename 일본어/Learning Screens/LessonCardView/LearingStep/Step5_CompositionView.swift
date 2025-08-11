@@ -1,5 +1,9 @@
 import SwiftUI
 
+extension Notification.Name {
+    static let vocabBookmarkChanged = Notification.Name("vocabBookmarkChanged")
+}
+
 struct Step5_CompositionView: View {
     var onComplete: () -> Void
 
