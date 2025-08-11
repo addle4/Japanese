@@ -1,13 +1,21 @@
+// Step3_SentenceBuilderView.swift
 import SwiftUI
 import AVKit
 
 struct Step3_SentenceBuilderView: View {
     var onComplete: () -> Void
+<<<<<<< HEAD
 
     private let originalWords: [String] = [
         "안", "녕", "하하하", "하", "하", "하", "하", "하", "하", "하", "하", "세", "요"
     ]
 
+=======
+    
+    private let originalWords = ["안","녕","하하하","하","하","하","하","하","하","하","하","세","요"]
+    let correctSentence = ["안","녕","하하하","하","하","하","하","하","하","하","하","세","요"]
+    
+>>>>>>> Han
     @State private var selectedWords: [String] = []
     @State private var availableWords: [String] = []
     @State private var hasSubmitted = false
@@ -17,6 +25,7 @@ struct Step3_SentenceBuilderView: View {
     @State private var resultType: ResultType? = nil
     @State private var draggedItem: String? = nil
     @State private var hasFinishedIntroVideo = false
+<<<<<<< HEAD
     @State private var player = AVPlayer(url: Bundle.main.url(forResource: "ハイキュー北信介名言 [it3tKC0ycu4]", withExtension: "mp4")!)
 
     @State private var showStep3Content = false
@@ -192,6 +201,157 @@ struct Step3_SentenceBuilderView: View {
                                                     )
                                             }
                                         }
+=======
+    @State private var showStep3Content = false
+    
+    // 데모 플레이어 (필요 시 ViewModel 로 대체)
+    @State private var player = AVPlayer(
+        url: Bundle.main.url(forResource: "ハイキュー北信介名言 [it3tKC0ycu4]", withExtension: "mp4")!
+    )
+    
+    enum ResultType { case correct, wrong }
+    
+    var body: some View {
+        ZStack { // 최상위 ZStack: 콘텐츠 + 결과모달 오버레이
+            VStack(spacing: 10) {
+                Text("Step 3: 문장 완성하기")
+                    .font(.title).fontWeight(.bold)
+                    .foregroundColor(.black)
+                    .padding(.top, 30)
+                
+                Text("단어를 순서에 맞게 배열하여 문장을 완성하세요.")
+                    .font(.subheadline)
+                    .foregroundStyle(.gray)
+                
+                if !hasFinishedIntroVideo {
+                    Spacer().frame(height: 25)
+                    CustomAVPlayerView(player: player)
+                        .frame(height: 250)
+                        .cornerRadius(20)
+                        .padding(.horizontal)
+                        .transition(.opacity) // 이 블록만 전환
+                    Spacer()
+                }
+                
+                if hasFinishedIntroVideo {
+                    Spacer()
+                    
+                    // 선택 영역
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 6)], spacing: 6) {
+                        ForEach(Array(selectedWords.enumerated()), id: \.offset) { pair in
+                            let word = pair.element
+                            Text(word)
+                                .font(.system(size: 18, weight: .medium))
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .foregroundColor(.black)
+                                .background(
+                                    hasSubmitted
+                                    ? (highlightColor ?? Color(red: 1, green: 0.8627, blue: 0.8627))
+                                    : Color(red: 1, green: 0.8627, blue: 0.8627)
+                                )
+                                .cornerRadius(8)
+                                .onDrag {
+                                    draggedItem = word
+                                    return NSItemProvider(object: word as NSString)
+                                }
+                                .onDrop(of: [.text], delegate: WordDropDelegate(
+                                    currentItem: word,
+                                    items: $selectedWords,
+                                    draggedItem: $draggedItem
+                                ))
+                                .scaleEffect(showStep3Content ? 1 : 0.8)
+                                .opacity(showStep3Content ? 1 : 0)
+                                .animation(.easeOut.delay(Double(pair.offset) * 0.03), value: showStep3Content)
+                        }
+                    }
+                    .offset(x: shakeOffset)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.3))
+                    .cornerRadius(8)
+                    .padding()
+                    
+                    // 후보 영역
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 6)], spacing: 6) {
+                        ForEach(Array(availableWords.enumerated()), id: \.offset) { pair in
+                            let index = pair.offset
+                            let word = pair.element
+                            
+                            Button {
+                                selectedWords.append(word)
+                                availableWords.remove(at: index)
+                            } label: {
+                                Text(word)
+                                    .font(.system(size: 18, weight: .medium))
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .foregroundColor(.black)
+                                    .background(Color(red: 1, green: 0.8627, blue: 0.8627))
+                                    .cornerRadius(8)
+                            }
+                            .scaleEffect(showStep3Content ? 1 : 0.8)
+                            .opacity(showStep3Content ? 1 : 0)
+                            .animation(.easeOut.delay(Double(index) * 0.02), value: showStep3Content)
+                        }
+                    }
+                    .padding()
+                    
+                    HStack {
+                        Button("다시 하기") { resetSentence() }
+                            .disabled(hasSubmitted)
+                            .padding()
+                            .background(Color.gray.opacity(0.6))
+                            .cornerRadius(8)
+                            .foregroundColor(.white)
+                    }
+                    
+                    AppButton(title: "제출하기") {
+                        checkAnswer()
+                    }
+                }
+            }
+            .padding(.bottom, 12)
+            .allowsHitTesting(!showResultView) // 모달 떠있을 때 뒤 클릭 방지
+            
+            // 결과 모달: 최상위 오버레이로 이동
+            if showResultView {
+                Color.black.opacity(0.35)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                
+                VStack {
+                    Spacer()
+                    VStack(spacing: 16) {
+                        HStack(spacing: 8) {
+                            Circle()
+                                .fill(resultType == .wrong ? Color.red : Color.green)
+                                .frame(width: 24, height: 24)
+                                .overlay(
+                                    Image(systemName: resultType == .wrong ? "xmark" : "checkmark")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 14, weight: .bold))
+                                )
+                            Text(resultType == .wrong ? "오답입니다" : "정답입니다")
+                                .font(.headline).fontWeight(.bold)
+                                .foregroundColor(resultType == .wrong ? .red : .green)
+                            Spacer()
+                        }
+                        
+                        if resultType == .wrong {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("정답:").fontWeight(.bold).foregroundColor(.black)
+                                LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 6)], spacing: 6) {
+                                    ForEach(Array(correctSentence.enumerated()), id: \.offset) { _, word in
+                                        Text(word)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 8)
+                                            .background(Color.white)
+                                            .cornerRadius(8)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .stroke(Color.red, lineWidth: 2)
+                                            )
+>>>>>>> Han
                                     }
                                 }
 
@@ -220,6 +380,7 @@ struct Step3_SentenceBuilderView: View {
                             .shadow(radius: 10)
                             .padding(.horizontal, 16)
                         }
+<<<<<<< HEAD
                         .edgesIgnoringSafeArea(.bottom)
                     }
                 }
@@ -228,6 +389,45 @@ struct Step3_SentenceBuilderView: View {
             }
         }
         .onAppear {
+=======
+                        
+                        Button {
+                            withAnimation(.interpolatingSpring(stiffness: 200, damping: 18)) {
+                                showResultView = false
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                onComplete()
+                            }
+                        } label: {
+                            Text(resultType == .wrong ? "확인" : "계속 학습하기")
+                                .fontWeight(.bold)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(resultType == .wrong ? Color.red : Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                                .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.systemGray5))
+                    .cornerRadius(20)
+                    .shadow(radius: 10)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .animation(.easeInOut(duration: 0.25), value: showResultView)
+            }
+        }
+        // 전역 transition/animation 제거: 필요한 뷰에만 부여
+        .onAppear {
+            resetSentence()
+            withAnimation(.easeOut(duration: 0.6).delay(0.2)) {
+                showStep3Content = true
+            }
+>>>>>>> Han
             NotificationCenter.default.addObserver(
                 forName: .AVPlayerItemDidPlayToEndTime,
                 object: player.currentItem,
@@ -240,7 +440,12 @@ struct Step3_SentenceBuilderView: View {
             player.play()
         }
     }
+<<<<<<< HEAD
 
+=======
+    
+    // MARK: - Actions
+>>>>>>> Han
     func checkAnswer() {
         hasSubmitted = true
         guard !selectedWords.isEmpty else {
@@ -263,12 +468,8 @@ struct Step3_SentenceBuilderView: View {
     }
 
     func showShake() {
-        withAnimation(.default.repeatCount(3, autoreverses: true)) {
-            shakeOffset = 10
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            shakeOffset = 0
-        }
+        withAnimation(.default.repeatCount(3, autoreverses: true)) { shakeOffset = 10 }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { shakeOffset = 0 }
     }
 
     func resetSentence() {
@@ -280,14 +481,17 @@ struct Step3_SentenceBuilderView: View {
     }
 }
 
+<<<<<<< HEAD
+=======
+// MARK: - Drag & Drop
+>>>>>>> Han
 struct WordDropDelegate: DropDelegate {
     let currentItem: String
     @Binding var items: [String]
     @Binding var draggedItem: String?
 
     func dropEntered(info: DropInfo) {
-        guard let draggedItem = draggedItem,
-              draggedItem != currentItem,
+        guard let draggedItem, draggedItem != currentItem,
               let fromIndex = items.firstIndex(of: draggedItem),
               let toIndex = items.firstIndex(of: currentItem) else { return }
 

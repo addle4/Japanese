@@ -11,6 +11,7 @@ enum QuizState: Equatable {
 // MARK: - Step 2 받아쓰기 뷰
 struct Step2_DictationView: View {
     var onComplete: () -> Void
+    @ObservedObject var viewModel: PlayerViewModel
 
     struct QuizChoice: Identifiable, Equatable {
         let id = UUID()
@@ -29,111 +30,121 @@ struct Step2_DictationView: View {
     ]
 
     var body: some View {
-        VStack(spacing: 20) {
-            HeaderAndVideoView()
-                .padding(.top, 20)
+            VStack(spacing: 10) {
+                
+                HeaderAndVideoView(viewModel: viewModel)
+                
+                Spacer()
+                SentenceAnswerAreaView(quizState: $quizState, selectedChoice: $selectedChoice)
+                    .padding(.horizontal, 24) // VStack에 달려있던 padding 제거하고 여기에만 직접 padding
 
-            Spacer()
-
-            // ✅ 문장카드 (항상 분홍 말풍선 + 점선 빈칸)
-            SentenceAnswerAreaView(quizState: $quizState, selectedChoice: $selectedChoice)
-
-            Spacer().frame(height: 10)
-
-            // ✅ 낱말카드 (분홍 칩, 위 후리가나 / 아래 한자)
-            ChoiceButtonsView(
-                choices: choices,
-                quizState: $quizState,
-                selectedChoice: $selectedChoice,
-                onSelect: handleChoiceSelection
-            )
-
-            Spacer()
-
-            BottomButtonView(quizState: $quizState, onComplete: onComplete)
-        }
-        .padding(.horizontal, 24)
+                Spacer().frame(height: 10) // 문장 단어 카드 사이 간격 진짜 뻐큐먹어
+                ChoiceButtonsView(
+                    choices: choices,
+                    quizState: $quizState,
+                    selectedChoice: $selectedChoice,
+                    onSelect: handleChoiceSelection
+                )
+                Spacer()
+                BottomButtonView(quizState: $quizState, onComplete: onComplete)
+                
+            }
     }
 
     private func handleChoiceSelection(choice: QuizChoice) {
         guard case .initial = quizState else { return }
+
         selectedChoice = choice
 
         if choice.kanji == correctAnswer {
             HapticManager.instance.notification(type: .success)
-            withAnimation(.spring()) { quizState = .correct }
+            withAnimation(.spring()) {
+                quizState = .correct
+            }
         } else {
             HapticManager.instance.notification(type: .error)
             withAnimation(.spring()) {
                 quizState = .incorrect(revealedAnswer: correctAnswer)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                withAnimation(.spring()) { quizState = .finishedWrongAnswer }
+                withAnimation(.spring()) {
+                    quizState = .finishedWrongAnswer
+                }
             }
         }
     }
 }
 
 fileprivate struct HeaderAndVideoView: View {
+    @ObservedObject var viewModel: PlayerViewModel
+
     var body: some View {
-        VStack(spacing: 11) {
+        VStack(spacing: 10) {
             Text("Step 2 : 빈칸 채우기")
-                .font(.system(size: 24, weight: .bold))
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.black)
                 .padding(.top, 30)
 
             Text("들리는 대로 빈칸을 채워보세요")
                 .font(.subheadline)
-                .foregroundColor(.gray)
+                .foregroundStyle(.gray)
 
-            ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(UIColor.systemGray6))
-                    .frame(height: 180)
-                    .overlay(
-                        Image(systemName: "play.circle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.gray.opacity(0.5))
-                    )
-            }
+            Spacer().frame(height: 25)
+
+            CustomAVPlayerView(player: viewModel.player)
+                .frame(height: 250)
+                .cornerRadius(20)
+                .padding(.horizontal)
         }
     }
 }
 
-// MARK: - ✅ 문장카드 (디자인 변경)
 fileprivate struct SentenceAnswerAreaView: View {
     @Binding var quizState: QuizState
     @Binding var selectedChoice: Step2_DictationView.QuizChoice?
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 20) {
             Text("俺が いれば お前は")
-                .font(.system(size: 20, weight: .regular))
 
-            // 이미지처럼: 항상 점선 빈칸 (정답/오답과 무관)
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(
-                    Color(red: 0.77, green: 0.77, blue: 0.77),
-                    style: StrokeStyle(lineWidth: 1, dash: [6])
-                )
-                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
-                .frame(width: 110, height: 36)
+            ZStack {
+                switch quizState {
+                case .initial:
+                    if let choice = selectedChoice {
+                        ChoiceView(choice: choice)
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.77, green: 0.77, blue: 0.77), style: StrokeStyle(lineWidth: 1, dash: [4]))
+                            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+                            .frame(width: 90, height: 40)
+                    }
+                case .incorrect(let revealedAnswer):
+                    Text(revealedAnswer).font(.title3.bold()).foregroundColor(.red)
+                case .correct:
+                    if let choice = selectedChoice {
+                        ChoiceView(choice: choice, isCorrect: true)
+                    }
+                case .finishedWrongAnswer:
+                    Text("最強").font(.title3.bold()).foregroundColor(.blue)
+                }
+            }
+            .frame(width: 100, height: 40)
 
             Text("だ！")
-                .font(.system(size: 20, weight: .regular))
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 16)
-        .background(Color(red: 1.0, green: 0.86, blue: 0.86)) // 연분홍 말풍선
+        .padding()
+        .font(.title2)
+        .foregroundColor(.black)
+        .background(Color(red: 1.0, green: 0.86, blue: 0.86))
         .overlay(
-            RoundedRectangle(cornerRadius: 22)
+            RoundedRectangle(cornerRadius: 25)
                 .stroke(Color(red: 0.77, green: 0.77, blue: 0.77), lineWidth: 1)
         )
-        .cornerRadius(22)
-        .foregroundColor(.black)
+        .cornerRadius(25)
     }
 }
 
-// MARK: - ✅ 낱말 버튼 행 (디자인 변경)
 fileprivate struct ChoiceButtonsView: View {
     let choices: [Step2_DictationView.QuizChoice]
     @Binding var quizState: QuizState
@@ -141,16 +152,11 @@ fileprivate struct ChoiceButtonsView: View {
     let onSelect: (Step2_DictationView.QuizChoice) -> Void
 
     var body: some View {
-        HStack(spacing: 18) {
+        HStack(spacing: 16) {
             ForEach(choices) { choice in
-                Button {
-                    onSelect(choice)
-                } label: {
-                    ChoiceView(
-                        choice: choice,
-                        isSelected: selectedChoice == choice,
-                        quizState: quizState
-                    )
+                Button(action: { onSelect(choice) }) {
+                    let isSelected = (selectedChoice == choice)
+                    ChoiceView(choice: choice, isSelected: isSelected, quizState: quizState)
                 }
                 .disabled(quizState != .initial)
             }
@@ -158,7 +164,6 @@ fileprivate struct ChoiceButtonsView: View {
     }
 }
 
-// MARK: - ✅ 낱말칩 (디자인 변경)
 fileprivate struct ChoiceView: View {
     let choice: Step2_DictationView.QuizChoice
     var isSelected: Bool = false
@@ -166,37 +171,31 @@ fileprivate struct ChoiceView: View {
     var quizState: QuizState? = nil
 
     var body: some View {
-        VStack(spacing: 4) {
-            Text(choice.furigana)
-                .font(.system(size: 12, weight: .regular))
-                .foregroundColor(.black.opacity(0.75))
-
-            Text(choice.kanji)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.black)
+        VStack(spacing: 2) {
+            Text(choice.furigana).font(.caption)
+            Text(choice.kanji).font(.title3).bold()
         }
         .padding(.vertical, 10)
-        .padding(.horizontal, 14)
-        .background(backgroundColor)
+        .padding(.horizontal, 12)
+        .background(getBackgroundColor())
+        .foregroundColor(.black)
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: 15)
                 .stroke(Color(red: 0.77, green: 0.77, blue: 0.77), lineWidth: 1)
         )
-        .cornerRadius(14)
-        .scaleEffect(isSelected ? 0.98 : 1.0)
-        .animation(.spring(response: 0.25, dampingFraction: 0.85), value: isSelected)
+        .cornerRadius(15)
+        .shadow(color: .yellow.opacity(0.8), radius: isCorrect ? 10 : 0)
     }
 
-    private var backgroundColor: Color {
-        // 기본은 연분홍, 선택 후 정답/오답이면 약한 피드백
+    private func getBackgroundColor() -> Color {
         guard let state = quizState, isSelected else {
             return Color(red: 1.0, green: 0.86, blue: 0.86)
         }
         switch state {
         case .correct:
-            return Color.green.opacity(0.25)
+            return .green.opacity(0.3)
         case .incorrect:
-            return Color.red.opacity(0.25)
+            return .red.opacity(0.3)
         default:
             return Color(red: 1.0, green: 0.86, blue: 0.86)
         }
@@ -214,7 +213,7 @@ fileprivate struct BottomButtonView: View {
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.accentPink) // 프로젝트 확장 컬러 사용
+                    .background(Color.accentPink)
                     .foregroundColor(.white)
                     .cornerRadius(15)
             }
@@ -235,4 +234,3 @@ fileprivate class HapticManager {
         generator.notificationOccurred(type)
     }
 }
- 

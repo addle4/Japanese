@@ -1,8 +1,9 @@
+// Step1_ListeningView.swift
 import SwiftUI
 
 struct Step1_ListeningView: View {
     var onComplete: () -> Void
-    @StateObject private var viewModel = PlayerViewModel()
+    @ObservedObject var viewModel: PlayerViewModel   // 🔧 외부에서 주입받음
 
     var body: some View {
         ZStack {
@@ -37,13 +38,10 @@ struct Step1_ListeningView: View {
 
                 AppButton(title: "내용 파악 완료! 다음으로", action: onComplete)
             }
-            .onAppear {
-                viewModel.play()
-            }
-            .onDisappear {
-                viewModel.pause()
-            }
-            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+            .onAppear { viewModel.play() }
+            .onDisappear { viewModel.pause() }
+            .transition(.asymmetric(insertion: .move(edge: .trailing),
+                                    removal: .move(edge: .leading)))
         }
     }
 }
