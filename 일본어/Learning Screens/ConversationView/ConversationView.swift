@@ -1,169 +1,220 @@
 import SwiftUI
+import AVFoundation
 
 struct ConversationView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var visibleMessages: [ConversationMessage] = []
-    @State private var showButton = false
+    @State private var allMessagesShown = false
+    @State private var showKeywordPopup = false
+    @State private var showKeywordsSheet = false   // ✅ 핵심단어 시트 표시 여부
 
+    private let synthesizer = AVSpeechSynthesizer()
+
+    // 예시 데이터 (한 문장 = 한 말풍선)
     private let allMessages: [ConversationMessage] = [
         ConversationMessage(
             id: 1,
-            japanese: "こんにちは",
-            korean: "안녕하세요",
+            japanese: "こんにちは！はじめまして。",
+            korean: "안녕하세요! 처음 뵙겠습니다.",
             isUser: false,
             furigana: [
-                FuriganaUnit(text: "こん", furigana: nil),
-                FuriganaUnit(text: "にち", furigana: nil),
-                FuriganaUnit(text: "は", furigana: nil)
+                FuriganaUnit(text: "今", furigana: "こん"),
+                FuriganaUnit(text: "日", furigana: "にち"),
+                FuriganaUnit(text: "は", furigana: nil),
+                FuriganaUnit(text: "！", furigana: nil),
+                FuriganaUnit(text: "初めまして", furigana: "はじめまして"),
+                FuriganaUnit(text: "。", furigana: nil)
             ]
         ),
         ConversationMessage(
             id: 2,
-            japanese: "こんにちは",
-            korean: "안녕하세요",
+            japanese: "こちらこそ、よろしくお願いします！",
+            korean: "저야말로 잘 부탁드립니다!",
             isUser: true,
             furigana: [
-                FuriganaUnit(text: "こん", furigana: nil),
-                FuriganaUnit(text: "にち", furigana: nil),
-                FuriganaUnit(text: "は", furigana: nil)
+                FuriganaUnit(text: "こちらこそ", furigana: nil),
+                FuriganaUnit(text: "、", furigana: nil),
+                FuriganaUnit(text: "よろしく", furigana: nil),
+                FuriganaUnit(text: "お願いします", furigana: "おねがいします"),
+                FuriganaUnit(text: "！", furigana: nil)
             ]
         ),
         ConversationMessage(
             id: 3,
-            japanese: "今日の 気分は どうですか。",
-            korean: "오늘의 기분은 어떤가요?",
+            japanese: "どこから来ましたか？",
+            korean: "어디에서 오셨나요?",
             isUser: false,
             furigana: [
-                FuriganaUnit(text: "今日", furigana: "きょう"),
-                FuriganaUnit(text: "の", furigana: nil),
-                FuriganaUnit(text: "気分", furigana: "きぶん"),
-                FuriganaUnit(text: "は", furigana: nil),
-                FuriganaUnit(text: "どう", furigana: nil),
-                FuriganaUnit(text: "です", furigana: nil),
-                FuriganaUnit(text: "か", furigana: nil)
+                FuriganaUnit(text: "どこ", furigana: nil),
+                FuriganaUnit(text: "から", furigana: nil),
+                FuriganaUnit(text: "来ました", furigana: "きました"),
+                FuriganaUnit(text: "か？", furigana: nil)
             ]
         ),
         ConversationMessage(
             id: 4,
-            japanese: "今日は 気分が いいです。",
-            korean: "오늘은 기분이 좋아요.",
+            japanese: "ソウルから来ました！",
+            korean: "서울에서 왔어요!",
             isUser: true,
             furigana: [
-                FuriganaUnit(text: "今日", furigana: "きょう"),
-                FuriganaUnit(text: "は", furigana: nil),
-                FuriganaUnit(text: "気分", furigana: "きぶん"),
-                FuriganaUnit(text: "が", furigana: nil),
-                FuriganaUnit(text: "いい", furigana: nil),
-                FuriganaUnit(text: "です", furigana: nil)
+                FuriganaUnit(text: "ソウル", furigana: nil),
+                FuriganaUnit(text: "から", furigana: nil),
+                FuriganaUnit(text: "来ました", furigana: "きました"),
+                FuriganaUnit(text: "！", furigana: nil)
             ]
         )
     ]
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
+            // 배경
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 255 / 255, green: 220 / 255, blue: 230 / 255),
-                    .white
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
+                colors: [Color(red: 255/255, green: 220/255, blue: 230/255), .white],
+                startPoint: .top, endPoint: .bottom
             )
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Text("오늘의 회화")
-                    .font(.system(size: 24, weight: .bold))
-                    .padding(.top, 30)
-
-                ScrollView {
-                    LazyVStack(spacing: 20) {
-                        ForEach(visibleMessages, id: \.id) { message in
-                            MessageBubble(message: message) {
-                                // 음성 재생 기능
-                            }
-                        }
-                        Spacer(minLength: 80) // 버튼과 겹치지 않게
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 10)
-                }
-
-                Spacer().frame(height: 80)
+                header
+                Divider().opacity(0.2)
+                messagesArea
             }
 
-            if showButton {
-                VStack {
-                    Spacer()
-                    Button(action: {
-                        // 핵심단어 보러가기 액션
-                    }) {
-                        Text("핵심단어 보러가기")
-                            .foregroundColor(Color(red: 255/255, green: 107/255, blue: 129/255))
-                            .padding()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color(red: 255/255, green: 107/255, blue: 129/255), lineWidth: 2)
-                            )
+            // 하단 고정 팝업
+            if showKeywordPopup {
+                BottomActionPopup(
+                    title: "핵심단어 보러가기",
+                    subtitle: "오늘 대화에서 핵심단어를 복습해요",
+                    actionTitle: "열기",
+                    onTap: {                      // ✅ 팝업 버튼 터치 시 시트 열기
+                        showKeywordsSheet = true
                     }
-                    .padding(.bottom, 20)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
             }
         }
-        .onAppear {
-            showMessagesSequentially()
+        // ✅ 핵심: 시트가 닫히면 이 화면을 Pop → HomeView로 복귀
+        .sheet(isPresented: $showKeywordsSheet, onDismiss: {
+            dismiss()
+        }) {
+            NavigationStack {
+                KeywordsScreen()  // 이 안에서 저장 후 dismiss()만 호출하면 됨
+            }
+        }
+        .onAppear { showMessagesSequentially() }
+    }
+
+    // MARK: Header
+    private var header: some View {
+        HStack {
+            Text("오늘의 회화").font(.system(size: 20, weight: .semibold))
+            Spacer()
+            Text(allMessagesShown ? "음성 버튼 사용 가능" : "말풍선 표시 중…")
+                .font(.footnote)
+                .foregroundColor(allMessagesShown ? .green : .gray)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+    }
+
+    // MARK: Messages
+    private var messagesArea: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 20) {
+                    ForEach(visibleMessages) { msg in
+                        ConversationBubbleView(
+                            message: msg,
+                            voiceEnabled: allMessagesShown,
+                            onSpeak: { speak(message: msg) }
+                        )
+                        .id(msg.id)
+                        .transition(.move(edge: msg.isUser ? .trailing : .leading).combined(with: .opacity))
+                        .animation(.easeOut(duration: 0.25), value: visibleMessages.count)
+                    }
+                }
+                .padding(.top, 12)
+            }
+            .onChange(of: visibleMessages.count) { _ in
+                if let last = visibleMessages.last {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        proxy.scrollTo(last.id, anchor: .bottom)
+                    }
+                }
+            }
         }
     }
 
+    // MARK: Sequential show (간격 넉넉히)
     private func showMessagesSequentially() {
-        for (index, message) in allMessages.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 1.2) {
-                withAnimation {
-                    visibleMessages.append(message)
+        visibleMessages = []
+        allMessagesShown = false
+        showKeywordPopup = false
 
-                    if index == allMessages.count - 1 {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            withAnimation {
-                                showButton = true
-                            }
-                        }
+        Task {
+            for (i, msg) in allMessages.enumerated() {
+                try? await Task.sleep(nanoseconds: 900_000_000) // 0.9초 간격
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.88)) {
+                    visibleMessages.append(msg)
+                }
+                if i == allMessages.count - 1 {
+                    try? await Task.sleep(nanoseconds: 250_000_000)
+                    allMessagesShown = true
+                    try? await Task.sleep(nanoseconds: 300_000_000)
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
+                        showKeywordPopup = true
                     }
                 }
             }
         }
+    }
+
+    // MARK: TTS
+    private func speak(message: ConversationMessage) {
+        if synthesizer.isSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+        }
+        let u = AVSpeechUtterance(string: message.japanese)
+        u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
+        u.rate = AVSpeechUtteranceDefaultSpeechRate * 0.9
+        synthesizer.speak(u)
     }
 }
 
-// MARK: - 말풍선 View
-struct MessageBubble: View {
-    let message: ConversationMessage
-    let onPlay: () -> Void
+// 그대로 유지
+struct BottomActionPopup: View {
+    var title: String
+    var subtitle: String
+    var actionTitle: String
+    var onTap: () -> Void
 
     var body: some View {
-        HStack {
-            if message.isUser { Spacer() }
+        VStack(spacing: 12) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.black)
 
-            VStack(alignment: message.isUser ? .trailing : .leading, spacing: 6) {
-                FuriganaTextView(units: message.furigana)
-                    .padding(10)
-                    .background(message.isUser ? Color.white : Color(red: 243/255, green: 244/255, blue: 248/255))
-                    .cornerRadius(15)
-                    .frame(maxWidth: .infinity, alignment: message.isUser ? .trailing : .leading)
+            Text(subtitle)
+                .font(.subheadline)
+                .foregroundColor(.gray)
 
-                HStack(spacing: 4) {
-                    Button(action: onPlay) {
-                        Image(systemName: "speaker.wave.2.fill")
-                            .foregroundColor(.gray)
-                    }
-                    Text(message.korean)
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-                }
+            Button(action: onTap) {
+                Text(actionTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        Color(red: 255/255, green: 107/255, blue: 129/255) // #FF6B81
+                    )
+                    .cornerRadius(12)
             }
-
-            if !message.isUser { Spacer() }
         }
-        .padding(.horizontal)
-        .frame(maxWidth: .infinity, alignment: message.isUser ? .trailing : .leading)
+        .padding()
+        .background(Color.white)
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
     }
 }

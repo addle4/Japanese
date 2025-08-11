@@ -1,5 +1,4 @@
 import SwiftUI
-
 struct Word: Identifiable, Equatable {
     let id = UUID()
     let hiragana: String
@@ -19,7 +18,7 @@ struct VocabularyView: View {
     @State private var isAllSelected: Bool = false
 
     @State private var learningWords: [Word] = [
-        
+
     ]
 
     @State private var conversationWords: [Word] = [
@@ -41,6 +40,7 @@ struct VocabularyView: View {
             .frame(maxWidth: .infinity)
             .background(Color.pink.opacity(0.2))
 
+            // 세그먼트 버튼
             HStack {
                 Spacer()
                 HStack(spacing: 0) {
@@ -72,6 +72,7 @@ struct VocabularyView: View {
             }
             .padding(.top, 10)
 
+            // 삭제/전체선택 바
             HStack {
                 Button(action: {
                     deleteSelectedWords()
@@ -112,6 +113,8 @@ struct VocabularyView: View {
             .padding(.bottom, 6)
 
             Divider()
+
+            // 리스트
             List {
                 ForEach(currentWordsBinding) { $word in
                     HStack(alignment: .top, spacing: 10) {
@@ -151,7 +154,8 @@ struct VocabularyView: View {
             }
             .listStyle(PlainListStyle())
         }
-        .onReceive(NotificationCenter.default.publisher(for: .vocabBookmarkChanged)) { note in
+        // ✅ 알림 수신: Step5 → 오늘의 학습, KeywordsScreen → 오늘의 회화
+        .onReceive(NotificationCenter.default.publisher(for: AppNotification.vocabBookmarkChanged)) { note in
             guard
                 let info = note.userInfo,
                 let hiragana = info["hiragana"] as? String,
@@ -161,22 +165,38 @@ struct VocabularyView: View {
                 let isOn = info["isOn"] as? Bool
             else { return }
 
+            // source == "keywords" 이면 회화 탭으로 저장
+            // source 키가 없으면 기본은 '학습'으로 간주 (Step5 호환)
+            let source = (info["source"] as? String) ?? ""
+            let targetIsConversation = (source == "keywords")
+
             let newWord = Word(hiragana: hiragana, kanji: kanji, meaning: meaning, day: day)
 
-            if isOn {
-                if !learningWords.contains(where: { $0.kanji == kanji && $0.hiragana == hiragana }) {
-                    learningWords.insert(newWord, at: 0) // 맨 위에 추가
+            if targetIsConversation {
+                if isOn {
+                    if !conversationWords.contains(where: { $0.kanji == kanji && $0.hiragana == hiragana }) {
+                        conversationWords.insert(newWord, at: 0) // 맨 위에 추가
+                    }
+                } else {
+                    conversationWords.removeAll { $0.kanji == kanji && $0.hiragana == hiragana }
                 }
             } else {
-                learningWords.removeAll { $0.kanji == kanji && $0.hiragana == hiragana }
+                if isOn {
+                    if !learningWords.contains(where: { $0.kanji == kanji && $0.hiragana == hiragana }) {
+                        learningWords.insert(newWord, at: 0) // 맨 위에 추가
+                    }
+                } else {
+                    learningWords.removeAll { $0.kanji == kanji && $0.hiragana == hiragana }
+                }
             }
-        }
-    }
+        }    }
 
+    // 현재 탭의 바인딩 배열
     private var currentWordsBinding: Binding<[Word]> {
         selectedTab == .learning ? $learningWords : $conversationWords
     }
 
+    // 선택 삭제
     private func deleteSelectedWords() {
         if selectedTab == .learning {
             learningWords.removeAll { $0.isSelected }
@@ -185,6 +205,7 @@ struct VocabularyView: View {
         }
     }
 
+    // 전체 선택/해제
     private func selectAllWords(_ select: Bool) {
         if selectedTab == .learning {
             learningWords = learningWords.map {
