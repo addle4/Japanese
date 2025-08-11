@@ -66,51 +66,10 @@ struct Step4_VocabularyView: View {
     ]
 
     var body: some View {
-<<<<<<< HEAD
-        ZStack {
-            VStack(spacing: 10) {
-                Text("Step 4 : 따라 말하기")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                    .padding(.top, 30)
-
-                Text("장면에 나온 주요 표현이에요! 복습해 볼까요?")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-
-                Spacer().frame(height: 25)
-
-                CustomAVPlayerView(player: viewModel.player)
-                    .frame(height: 250)
-                    .cornerRadius(20)
-                    .padding(.horizontal)
-
-                HStack(spacing: 0) {
-                    Text("俺")
-                        .foregroundColor(.pink)
-                    Text("が  ")
-                        .foregroundColor(.black)
-                    Text(" いれ ")
-                        .foregroundColor(.pink)
-                    Text("ば")
-                        .foregroundStyle(.black)
-                    Text("お前")
-                        .foregroundColor(.pink)
-                    Text("は ")
-                        .foregroundColor(.black)
-                    Text("最強")
-                        .foregroundColor(.pink)
-                    Text("だ！")
-                        .foregroundColor(.black)
-                }
-                .font(.title3)
-=======
         VStack(spacing: 10) {
             // 제목 & 부제
             Text("Step 4 : 따라 말하기")
                 .font(.title)
->>>>>>> Han
                 .fontWeight(.bold)
                 .foregroundColor(.black)
                 .padding(.top, 30)
