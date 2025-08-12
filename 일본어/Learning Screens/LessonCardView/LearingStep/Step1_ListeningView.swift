@@ -3,10 +3,14 @@ import SwiftUI
 
 struct Step1_ListeningView: View {
     var onComplete: () -> Void
-    @ObservedObject var viewModel: PlayerViewModel   // 🔧 외부에서 주입받음
+    @ObservedObject var viewModel: PlayerViewModel
 
     var body: some View {
-        ZStack {
+        RatioAnchoredButtonLayout(
+            buttonYRatio: 0.90,
+            buttonReservedHeight: 84,
+            horizontalMargin: 16
+        ) {
             VStack(spacing: 10) {
                 Text("Step 1: 몰입해서 듣기")
                     .font(.title)
@@ -23,7 +27,7 @@ struct Step1_ListeningView: View {
                 CustomAVPlayerView(player: viewModel.player)
                     .frame(height: 250)
                     .cornerRadius(20)
-                    .padding(.horizontal)
+                    .padding(.horizontal, 16)
 
                 HStack {
                     Text("배속: \(String(format: "%.1fx", viewModel.playbackRate))")
@@ -32,16 +36,16 @@ struct Step1_ListeningView: View {
 
                     Slider(value: $viewModel.playbackRate, in: 0.5...2.0, step: 0.25)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
 
                 Spacer()
-
-                AppButton(title: "내용 파악 완료! 다음으로", action: onComplete)
             }
             .onAppear { viewModel.play() }
             .onDisappear { viewModel.pause() }
             .transition(.asymmetric(insertion: .move(edge: .trailing),
                                     removal: .move(edge: .leading)))
+        } button: {
+            AppButton(title: "내용 파악 완료! 다음으로", action: onComplete)
         }
     }
 }
