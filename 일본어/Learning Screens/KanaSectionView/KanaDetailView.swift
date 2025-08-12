@@ -17,7 +17,7 @@ final class SpeechPlayer {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         let u = AVSpeechUtterance(string: text)
         u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
-        u.rate  = 0.35        // 🔹 기존 0.45 → 0.35로 낮춰서 발음을 길게
+        u.rate  = 0.15        // 🔹 기존 0.45 → 0.35로 낮춰서 발음을 길게
         u.pitchMultiplier = 1.0
         synth.stopSpeaking(at: .immediate)
         synth.speak(u)
