@@ -7,10 +7,16 @@ struct HeaderView: View {
     var body: some View {
         HStack {
             // 프로필 이미지
-            Image(systemName: "person.crop.circle.fill")
-                .resizable()
-                .frame(width: 40, height: 40)
-                .foregroundColor(.gray)
+            ZStack {
+                Circle()
+                    .fill(Color(red: 1.0, green: 0.9, blue: 0.8)) // 연한 노란색 배경
+                    .frame(width: 60, height: 60) // 이미지보다 살짝 크게
+
+                Image("profile")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 60, height: 60)
+            }
 
             // 텍스트 정보
             VStack(alignment: .leading, spacing: 2) {
