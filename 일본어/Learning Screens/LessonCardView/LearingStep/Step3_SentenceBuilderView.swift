@@ -111,18 +111,39 @@ struct Step3_SentenceBuilderView: View {
                     }
                     .padding()
                     
-                    HStack {
-                        Button("다시 하기") { resetSentence() }
-                            .disabled(hasSubmitted)
-                            .padding()
+                    // ⬇️ Step3_SentenceBuilderView 내 버튼 영역 교체
+                    GeometryReader { geo in
+                        HStack(spacing: 12) {
+                            // 3 ──────────────────────────────────────────
+                            Button {
+                                resetSentence()
+                            } label: {
+                                Text("다시 하기")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()                      // AppButton 과 동일한 내부 패딩
+                            }
+                            .frame(width: geo.size.width * 0.3, height: 52)
                             .background(Color.gray.opacity(0.6))
-                            .cornerRadius(8)
                             .foregroundColor(.white)
+                            .cornerRadius(15)
+                            .disabled(hasSubmitted)
+                            .opacity(hasSubmitted ? 0.5 : 1)
+                            
+                            // 7 ──────────────────────────────────────────
+                            AppButton(title: "제출하기") {
+                                checkAnswer()
+                            }
+                            // AppButton 이 가진 바깥 패딩을 이 인스턴스에서만 상쇄해 비율 정확히 맞춤
+                            .padding(.horizontal, -16)   // AppButton 내부 .padding(.horizontal) 상쇄
+                            .padding(.bottom, -10)       // AppButton 내부 .padding(.bottom, 10) 상쇄
+                            .frame(width: geo.size.width * 0.7, height: 52)
+                        }
+                        .frame(width: geo.size.width)    // GeometryReader 전체 폭 사용
                     }
-                    
-                    AppButton(title: "제출하기") {
-                        checkAnswer()
-                    }
+                    .frame(height: 52)                   // 레이아웃 안정화
+                    .padding(.horizontal, 16)            // 화면 양옆 여백
+                    .padding(.top, 4)
                 }
             }
             .padding(.bottom, 12)
