@@ -4,6 +4,7 @@ import SwiftUI
 import KakaoSDKUser
 import GoogleSignIn
 import FirebaseCore
+import FirebaseAuth
 
 struct OnboardingView: View {
     @AppStorage("hasLaunchedBefore") var hasLaunchedBefore = false
@@ -68,14 +69,9 @@ struct OnboardingView: View {
             Button("확인", role: .cancel) { }
         } message: {
             Text(errorMessage)
-        }.fullScreenCover(isPresented: $isLoggedIn) {
+        }
+        .fullScreenCover(isPresented: $isLoggedIn) {
             MainView()
-        }.onAppear {
-#if DEBUG
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isLoggedIn = true
-            }
-#endif
         }
     }
     
@@ -100,7 +96,7 @@ struct OnboardingView: View {
         isLoading = true
         
         guard let clientID = FirebaseApp.app()?.options.clientID else {
-            showError("Firebase clientID가 없습니다.")
+            showError("Firebase clientID 가 없다.")
             return
         }
         
@@ -109,7 +105,7 @@ struct OnboardingView: View {
         
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
-            showError("루트 뷰 컨트롤러를 찾을 수 없습니다.")
+            showError("루트 ViewController 를 찾을 수 없다.")
             return
         }
         
@@ -118,7 +114,18 @@ struct OnboardingView: View {
                 showError("구글 로그인 실패: \(error.localizedDescription)")
                 return
             }
-            
+            // 여기서 FirebaseAuth 연동까지 하려면 아래 주석을 참고.
+            // guard let idToken = result?.user.idToken?.tokenString,
+            //       let accessToken = result?.user.accessToken.tokenString else {
+            //     showError("Google 토큰을 가져오지 못했다.")
+            //     return
+            // }
+            // let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+            // Auth.auth().signIn(with: credential) { authResult, error in
+            //     if let error = error { showError("Firebase 로그인 실패: \(error.localizedDescription)"); return }
+            //     completeLogin()
+            // }
+
             print("✅ 구글 로그인 성공: \(result?.user.profile?.name ?? "알 수 없음")")
             completeLogin()
         }
