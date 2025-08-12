@@ -1,40 +1,40 @@
 // JStudyApp.swift
-// SwiftUI App 엔트리 + Scene 단 openURL 보강
-
 import SwiftUI
 import KakaoSDKAuth
 import GoogleSignIn
-import FirebaseCore
 
 @main
 struct JStudyApp: App {
-    @AppStorage("hasLaunchedBefore") var hasLaunchedBefore = false
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
-    init() {
-        // 개발 중엔 항상 온보딩을 보이게 강제
-        hasLaunchedBefore = false
-    }
+    @StateObject private var appState = AppState()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
             Group {
-                if hasLaunchedBefore {
-                    NavigationStack {
-                        MainView()
-                    }
+                if appState.isChecking {
+                    // 세션 점검 중에는 깜빡임 방지용 빈 화면/스플래시
+                    Color.black.ignoresSafeArea()
+                } else if appState.isLoggedIn {
+                    NavigationStack { MainView() }
                 } else {
                     OnboardingView()
                 }
             }
-            // Scene 단에서도 URL 을 한 번 더 받아 Kakao/Google 처리 (보강용)
-            .onOpenURL { url in
-                // Kakao
+            .environmentObject(appState)
+            .task {
+                appState.refreshSession()              // 첫 구동 시 세션 복구
+            }
+            .onChange(of: scenePhase) { phase in
+                if phase == .active {
+                    appState.refreshSession()          // 포그라운드 복귀 시 재확인
+                }
+            }
+            .onOpenURL { url in                        // URL 핸들링(보강)
                 if AuthApi.isKakaoTalkLoginUrl(url) {
                     _ = AuthController.handleOpenUrl(url: url)
                     return
                 }
-                // Google
                 if GIDSignIn.sharedInstance.handle(url) {
                     return
                 }

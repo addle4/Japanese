@@ -1,5 +1,4 @@
 // OnboardingView.swift
-
 import SwiftUI
 import KakaoSDKUser
 import GoogleSignIn
@@ -7,11 +6,10 @@ import FirebaseCore
 import FirebaseAuth
 
 struct OnboardingView: View {
-    @AppStorage("hasLaunchedBefore") var hasLaunchedBefore = false
+    @EnvironmentObject var appState: AppState
     @State private var isLoading = false
     @State private var showAlert = false
     @State private var errorMessage = ""
-    @State private var isLoggedIn = false
     
     var body: some View {
         VStack(spacing: 30) {
@@ -70,22 +68,18 @@ struct OnboardingView: View {
         } message: {
             Text(errorMessage)
         }
-        .fullScreenCover(isPresented: $isLoggedIn) {
-            MainView()
-        }
     }
-    
     
     // MARK: - 카카오 로그인 처리
     private func handleKakaoLogin() {
         isLoading = true
         
         if UserApi.isKakaoTalkLoginAvailable() {
-            UserApi.shared.loginWithKakaoTalk { (oauthToken, error) in
+            UserApi.shared.loginWithKakaoTalk { (_, error) in
                 handleLoginResult(error: error)
             }
         } else {
-            UserApi.shared.loginWithKakaoAccount { (oauthToken, error) in
+            UserApi.shared.loginWithKakaoAccount { (_, error) in
                 handleLoginResult(error: error)
             }
         }
@@ -114,18 +108,25 @@ struct OnboardingView: View {
                 showError("구글 로그인 실패: \(error.localizedDescription)")
                 return
             }
-            // 여기서 FirebaseAuth 연동까지 하려면 아래 주석을 참고.
-            // guard let idToken = result?.user.idToken?.tokenString,
-            //       let accessToken = result?.user.accessToken.tokenString else {
-            //     showError("Google 토큰을 가져오지 못했다.")
-            //     return
-            // }
-            // let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-            // Auth.auth().signIn(with: credential) { authResult, error in
-            //     if let error = error { showError("Firebase 로그인 실패: \(error.localizedDescription)"); return }
-            //     completeLogin()
-            // }
-
+            
+            // FirebaseAuth 연동 예시
+            /*
+             guard let idToken = result?.user.idToken?.tokenString,
+             let accessToken = result?.user.accessToken.tokenString else {
+             showError("Google 토큰을 가져오지 못했다.")
+             return
+             }
+             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+             accessToken: accessToken)
+             Auth.auth().signIn(with: credential) { _, error in
+             if let error = error {
+             showError("Firebase 로그인 실패: \(error.localizedDescription)")
+             return
+             }
+             completeLogin()
+             }
+             */
+            
             print("✅ 구글 로그인 성공: \(result?.user.profile?.name ?? "알 수 없음")")
             completeLogin()
         }
@@ -143,8 +144,7 @@ struct OnboardingView: View {
     
     private func completeLogin() {
         isLoading = false
-        hasLaunchedBefore = true
-        isLoggedIn = true
+        appState.markLoggedIn()   // ✅ 전역 로그인 상태 + didLoginOnce 저장
     }
     
     private func showError(_ message: String) {
