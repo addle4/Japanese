@@ -1,8 +1,6 @@
 import SwiftUI
 
-/// 한 문장을 하나의 말풍선 안에 표시.
-/// - 본문(검은 글자)을 기준으로 줄 배치
-/// - 히라가나(회색)는 overlay로 얹어 레이아웃에 영향 X
+
 struct FuriganaTextView: View {
     let units: [FuriganaUnit]
     var tokenSpacing: CGFloat = 6
@@ -57,7 +55,7 @@ private struct TokenView: View {
         .fixedSize()
     }
 }
-/// iOS 16+ Custom Layout: 가로로 배치하다가 공간 부족 시 줄바꿈
+
 struct FlowWrapLayout: Layout {
     let tokenSpacing: CGFloat
     let lineSpacing: CGFloat
