@@ -21,8 +21,14 @@ struct LearningFlowView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 상단 진행바
+            // xmark + 상단 진행바
             HStack {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                }.padding(.leading)
+                
                 ProgressView(value: Double(currentStep), total: Double(totalSteps))
                     .tint(Color(red: 255/255, green: 107/255, blue: 129/255))
                     .scaleEffect(x: 1, y: 2, anchor: .center)
