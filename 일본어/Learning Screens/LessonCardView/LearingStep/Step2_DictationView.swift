@@ -1,3 +1,4 @@
+// Step2_DictationView.swift
 import SwiftUI
 
 // MARK: - Step 2 상태 정의
@@ -8,7 +9,7 @@ enum QuizState: Equatable {
     case finishedWrongAnswer
 }
 
-// MARK: - Step 2 받아쓰기 뷰
+// MARK: - Step 2 받아쓰기 뷰 (재구성)
 struct Step2_DictationView: View {
     var onComplete: () -> Void
     @ObservedObject var viewModel: PlayerViewModel
@@ -30,25 +31,40 @@ struct Step2_DictationView: View {
     ]
 
     var body: some View {
+        RatioAnchoredButtonLayout(
+            buttonYRatio: 0.90,
+            buttonReservedHeight: 84,
+            horizontalMargin: 16
+        ) {
+            // ⬇︎ 콘텐츠 영역 (기존 구성 유지)
             VStack(spacing: 10) {
-                
                 HeaderAndVideoView(viewModel: viewModel)
-                
-                Spacer()
-                SentenceAnswerAreaView(quizState: $quizState, selectedChoice: $selectedChoice)
-                    .padding(.horizontal, 24) // VStack에 달려있던 padding 제거하고 여기에만 직접 padding
 
-                Spacer().frame(height: 10) // 문장 단어 카드 사이 간격 진짜 뻐큐먹어
+                SentenceAnswerAreaView(quizState: $quizState, selectedChoice: $selectedChoice)
+                    .padding(.horizontal, 24)
+
+                Spacer().frame(height: 10)
+
                 ChoiceButtonsView(
                     choices: choices,
                     quizState: $quizState,
                     selectedChoice: $selectedChoice,
                     onSelect: handleChoiceSelection
                 )
+
                 Spacer()
-                BottomButtonView(quizState: $quizState, onComplete: onComplete)
-                
             }
+        } button: {
+            // ⬇︎ 비율 고정 버튼 (정답 또는 오답 공개 이후에만 노출)
+            if quizState == .correct || quizState == .finishedWrongAnswer {
+                AppButton(title: "다음으로!", action: onComplete)
+            } else {
+                // 자리만 유지하고 보이지 않게 (터치 불가)
+                AppButton(title: "다음으로!", action: {})
+                    .opacity(0)
+                    .allowsHitTesting(false)
+            }
+        }
     }
 
     private func handleChoiceSelection(choice: QuizChoice) {
@@ -75,6 +91,7 @@ struct Step2_DictationView: View {
     }
 }
 
+// MARK: - 하위 뷰들 (기존과 동일)
 fileprivate struct HeaderAndVideoView: View {
     @ObservedObject var viewModel: PlayerViewModel
 
@@ -161,6 +178,7 @@ fileprivate struct ChoiceButtonsView: View {
                 .disabled(quizState != .initial)
             }
         }
+        .padding(.horizontal, 16)
     }
 }
 
@@ -202,29 +220,7 @@ fileprivate struct ChoiceView: View {
     }
 }
 
-fileprivate struct BottomButtonView: View {
-    @Binding var quizState: QuizState
-    let onComplete: () -> Void
-
-    var body: some View {
-        if quizState == .correct || quizState == .finishedWrongAnswer {
-            Button(action: onComplete) {
-                Text("다음으로!")
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentPink)
-                    .foregroundColor(.white)
-                    .cornerRadius(15)
-            }
-            .padding(.horizontal)
-            .transition(.opacity.combined(with: .move(edge: .bottom)))
-        } else {
-            Button(action: {}) { Text("다음으로!") }.hidden()
-        }
-    }
-}
-
+// MARK: - Haptic
 fileprivate class HapticManager {
     static let instance = HapticManager()
     private init() {}
