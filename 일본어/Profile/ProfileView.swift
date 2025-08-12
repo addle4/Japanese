@@ -14,7 +14,7 @@ struct ProfileView: View {
     private let todayDot    = Color(customHex: "#BDBDBD")
     
     var body: some View {
-        ScrollView(showsIndicators: false) { // 스크롤 가능하게 변경
+        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 Text("프로필 설정")
                     .font(.system(size: 20, weight: .semibold))
