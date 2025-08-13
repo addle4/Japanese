@@ -98,14 +98,11 @@ fileprivate struct HeaderAndVideoView: View {
     var body: some View {
         VStack(spacing: 10) {
             Text("Step 2 : 빈칸 채우기")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.black)
+                .font(.title).fontWeight(.bold).foregroundColor(.black)
                 .padding(.top, 30)
 
             Text("들리는 대로 빈칸을 채워보세요")
-                .font(.subheadline)
-                .foregroundStyle(.gray)
+                .font(.subheadline).foregroundStyle(.gray)
 
             Spacer().frame(height: 25)
 
@@ -114,6 +111,9 @@ fileprivate struct HeaderAndVideoView: View {
                 .cornerRadius(20)
                 .padding(.horizontal)
         }
+        // ✅ 이 Step 들어오면 0초부터 재생, 나가면 일시정지
+        .onAppear { viewModel.playFromStart() }
+        .onDisappear { viewModel.pause() }
     }
 }
 

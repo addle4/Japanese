@@ -61,17 +61,20 @@ struct KeywordsScreen: View {
             }
             .listStyle(.plain)
 
-            // 완료 버튼 (기존 로직 유지)
-            Button("학습완료") {
+
+            Button(action: {
+
                 saveSelectionsToConversation()
-                dismiss()   // ← 시트만 닫기 (그 다음은 부모가 처리)
+                dismiss() // ← 시트만 닫기 (그 다음은 부모가 처리)
+            }) {
+                Text("학습완료")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(red: 1.0, green: 0.42, blue: 0.51))
+                    .foregroundColor(.white)
+                    .cornerRadius(14)
             }
-            .font(.headline)
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color(red: 1.0, green: 0.42, blue: 0.51))
-            .foregroundColor(.white)
-            .cornerRadius(14)
             .padding(.horizontal)
         }
         .padding(.top, 8)

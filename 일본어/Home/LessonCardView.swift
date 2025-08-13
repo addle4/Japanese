@@ -70,11 +70,15 @@ struct LessonCardView: View {
             RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .fill(
                     LinearGradient(
-                        colors: [cardPinkTop, cardPinkBottom],
-                        startPoint: .top, endPoint: .bottom
+                        colors: [
+                            Color(red: 255/255, green: 183/255, blue: 198/255),
+                            Color(red: 255/255, green: 238/255, blue: 241/255)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
                 )
         )
-       
+        .contentShape(Rectangle())
     }
 }

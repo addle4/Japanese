@@ -13,14 +13,11 @@ struct Step1_ListeningView: View {
         ) {
             VStack(spacing: 10) {
                 Text("Step 1: 몰입해서 듣기")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
+                    .font(.title).fontWeight(.bold).foregroundColor(.black)
                     .padding(.top, 30)
 
                 Text("자막 없이 장면에 집중하며 들어보세요.")
-                    .font(.subheadline)
-                    .foregroundStyle(.gray)
+                    .font(.subheadline).foregroundStyle(.gray)
 
                 Spacer().frame(height: 25)
 
@@ -31,9 +28,7 @@ struct Step1_ListeningView: View {
 
                 HStack {
                     Text("배속: \(String(format: "%.1fx", viewModel.playbackRate))")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-
+                        .font(.footnote).foregroundColor(.gray)
                     Slider(value: $viewModel.playbackRate, in: 0.5...2.0, step: 0.25)
                 }
                 .padding(.horizontal, 16)
@@ -41,7 +36,7 @@ struct Step1_ListeningView: View {
                 Spacer()
             }
             .onAppear { viewModel.play() }
-            .onDisappear { viewModel.pause() }
+            .onDisappear { viewModel.pause() } // 풀스크린 중이면 유지, 아니면 일시정지
             .transition(.asymmetric(insertion: .move(edge: .trailing),
                                     removal: .move(edge: .leading)))
         } button: {

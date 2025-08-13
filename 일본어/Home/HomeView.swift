@@ -59,7 +59,9 @@ struct HomeView: View {
                                 stats: LearningOverview(
                                     todayProgress: stats.todayProgress,
                                     totalProblems: stats.totalProblems,
+
                                     todayLearnedSeconds: stats.todayLearnedMinutes * 60,
+
                                     minutesLearnedTotal: stats.minutesLearnedTotal
                                 ),
                                 onStartToday: { isShowingLearningView = true }
