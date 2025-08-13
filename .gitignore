@@ -49,3 +49,8 @@ playground.xcworkspace
 *.lock
 *.moved-aside
 *.tmp
+
+# Xcode user-specific state (do not track)
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
