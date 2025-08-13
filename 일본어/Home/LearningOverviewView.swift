@@ -10,11 +10,11 @@ struct LearningOverview {
 
 struct LearningOverviewView: View {
     var stats: LearningOverview
+    
     var onStartToday: (() -> Void)? = nil
 
-    @Environment(\.scenePhase) private var scenePhase
-    @State private var todaySeconds: Int = 0
-    @State private var timer: Timer?
+    @State private var segment: Segment = .history
+    enum Segment: String, CaseIterable { case history = "학습내역", allWords = "모든 어휘" }
 
     struct DayStat: Identifiable {
         let id = UUID()
@@ -25,184 +25,131 @@ struct LearningOverviewView: View {
     }
 
     private let chartData: [DayStat] = [
-        .init(label: "16일 전",     newWords: 4, reviewWords: 5, correctness: 0.67),
-        .init(label: "2025-08-06", newWords: 6, reviewWords: 4, correctness: 0.98),
-        .init(label: "오늘",        newWords: 3, reviewWords: 4, correctness: 0.52),
+        .init(label: "16일 전",     newWords: 4, reviewWords: 5, correctness: 0.62),
+        .init(label: "2025-08-06", newWords: 7, reviewWords: 4, correctness: 0.78),
+        .init(label: "오늘",        newWords: 6, reviewWords: 7, correctness: 0.55),
     ]
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-
-                // MARK: 섹션 타이틀 (핑크 탭 스타일)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("학습내역")
-                        .font(.headline)
-                        .foregroundStyle(Color.brandPink.opacity(0.9))
-                        .padding(.top, 14)
-
-                    ZStack(alignment: .leading) {
-                        Rectangle().fill(Color.black.opacity(0.1)).frame(height: 1)
-                        Rectangle().fill(Color.brandPink.opacity(0.6))
-                            .frame(width: 86, height: 3)
-                            .offset(y: 1)
-                    }
+            VStack(spacing: 18) {
+                HStack { Spacer()
+                    Text("어휘 학습 정보")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(.black.opacity(0.85))
+                    Spacer()
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
+                .padding(.top, 8)
 
-                // MARK: 카드
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
+                    StatTile(icon: "trophy.fill", iconTint: .brandPink, bgTint: .brandLight2,
+                             title: "학습 달성률",
+                             value: stats.todayProgress == 0 ? " - " : "\(Int(stats.todayProgress*100))%")
+                    StatTile(icon: "note.text", iconTint: .brandPink, bgTint: .brandLight2,
+                             title: "총 학습 문제", value: "\(stats.totalProblems)개")
+                    StatTile(icon: "clock.fill", iconTint: .brandPink, bgTint: .brandLight2,
+                             title: "오늘 학습 시간", value: secondsToMinuteSecond(stats.todayLearnedSeconds))
+                    StatTile(icon: "timer", iconTint: .brandPink, bgTint: .brandLight2,
+                             title: "총 학습 시간", value: "\(stats.minutesLearnedTotal)분 7초")
+                }
+
+                VStack(spacing: 10) {
+                    Picker("", selection: $segment) {
+                        ForEach(Segment.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+
+                    HStack(spacing: 14) {
+                        Legend(color: .brandPink.opacity(0.85), label: "새로 배운 문장")
+                        Legend(color: .brandPink.opacity(0.28), label: "복습 문장")
+                        Legend(color: .gray.opacity(0.9), label: "복습 정답률")
+                        Spacer()
+                    }
+                    .font(.caption)
+                    .padding(.horizontal, 4)
+                }
+
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(Color.white)
-                        .shadow(color: .black.opacity(0.06), radius: 8, y: 3)
+                        .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
 
-                    VStack(spacing: 14) {
-
-                        // 범례: 좌측 세로(직선), 우측 동그라미
-                        HStack(alignment: .top) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                LegendLine(color: Color.brandPink.opacity(0.28), label: "새로 배운 문장 :")
-                                LegendLine(color: Color.brandPink.opacity(0.85), label: "복습 문장 :")
-                            }
-                            Spacer()
-                            LegendDot(color: .gray.opacity(0.9), label: "복습 정답률")
-                        }
-                        .font(.caption)
-                        .padding(.top, 12)
-                        .padding(.horizontal, 16)
-
-                        // 가운데 화살표
-                        HStack(spacing: 40) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(Color.black.opacity(0.7))
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(Color.black.opacity(0.7))
-                        }
-                        .padding(.top, 2)
-
+                    VStack(spacing: 12) {
                         GeometryReader { geo in
-                            // 레이아웃 상수
-                            let horizontalPadding: CGFloat = 20
-                            let bottomPadding: CGFloat = 18   // ⬅️ 바닥 정렬에 사용
-                            let availableWidth = geo.size.width - horizontalPadding * 2
                             let maxBar = max(chartData.map { max($0.newWords, $0.reviewWords) }.max() ?? 1, 1)
-                            let maxHeight = geo.size.height - 46   // 위 여백 보정
+                            let maxHeight = geo.size.height - 36
                             let count = chartData.count
 
                             ZStack {
-
-                                // 가로 가이드라인
-                                ForEach(1...3, id: \.self) { i in
-                                    let y = 12 + (maxHeight * CGFloat(i) / 3.0) - bottomPadding/3
+                                ForEach(0..<4) { i in
+                                    let y = 12 + (maxHeight * CGFloat(i) / 3.0)
                                     Path { p in
-                                        p.move(to: CGPoint(x: horizontalPadding, y: y))
-                                        p.addLine(to: CGPoint(x: geo.size.width - horizontalPadding, y: y))
+                                        p.move(to: CGPoint(x: 0, y: y))
+                                        p.addLine(to: CGPoint(x: geo.size.width, y: y))
                                     }
-                                    .stroke(Color.gray.opacity(0.18), lineWidth: 1)
+                                    .stroke(Color.gray.opacity(0.12), lineWidth: 1)
                                 }
 
-//                                // 하단 굵은 핑크 베이스라인 (막대 바닥과 정확히 일치)
-//                                Path { p in
-//                                    let y = 12 + maxHeight - bottomPadding
-//                                    p.move(to: CGPoint(x: horizontalPadding, y: y))
-//                                    p.addLine(to: CGPoint(x: geo.size.width - horizontalPadding, y: y))
-//                                }
-//                                .stroke(Color.brandPink.opacity(0.8), lineWidth: 2)
-
-                                // 정답률 꺾은선 (조금 더 연한 회색)
                                 Path { path in
                                     for (i, d) in chartData.enumerated() {
-                                        let x = horizontalPadding + availableWidth * (CGFloat(i) / CGFloat(max(count - 1, 1)))
-                                        let y = 12 + (maxHeight - bottomPadding) * (1 - CGFloat(d.correctness))
+                                        let x = geo.size.width * (CGFloat(i) / CGFloat(max(count - 1, 1)))
+                                        let y = 12 + maxHeight * (1 - CGFloat(d.correctness))
                                         if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
                                         else { path.addLine(to: CGPoint(x: x, y: y)) }
                                     }
                                 }
-                                .stroke(Color.gray.opacity(0.45), style: StrokeStyle(lineWidth: 2, lineJoin: .round))
+                                .stroke(.gray, style: StrokeStyle(lineWidth: 2, lineJoin: .round))
 
-                                // 포인트
                                 ForEach(Array(chartData.enumerated()), id: \.offset) { i, d in
-                                    let x = horizontalPadding + availableWidth * (CGFloat(i) / CGFloat(max(count - 1, 1)))
-                                    let y = 12 + (maxHeight - bottomPadding) * (1 - CGFloat(d.correctness))
-                                    Circle().fill(Color.gray.opacity(0.7))
-                                        .frame(width: 6, height: 6)
-                                        .position(x: x, y: y)
+                                    let x = geo.size.width * (CGFloat(i) / CGFloat(max(count - 1, 1)))
+                                    let y = 12 + maxHeight * (1 - CGFloat(d.correctness))
+                                    Circle().fill(.gray).frame(width: 6, height: 6).position(x: x, y: y)
                                 }
 
-                                // 막대 (좌: 연핑크=새로 배운, 우: 진핑크=복습)
-                                HStack(alignment: .bottom, spacing: (availableWidth / CGFloat(count)) - 32) {
+                                HStack(alignment: .bottom, spacing: (geo.size.width - 56) / CGFloat(count) - 28) {
                                     ForEach(chartData) { d in
-                                        let unit: CGFloat = 16
-                                        let hNew = (maxHeight - bottomPadding) * CGFloat(d.newWords) / CGFloat(maxBar)
-                                        let hReview = (maxHeight - bottomPadding) * CGFloat(d.reviewWords) / CGFloat(maxBar)
-
-                                        HStack(alignment: .bottom, spacing: 8) {
-                                            RoundedRectangle(cornerRadius: 0)
+                                        let h = maxHeight * CGFloat(max(d.newWords, d.reviewWords)) / CGFloat(maxBar)
+                                        let unit: CGFloat = max(20, min(24, (geo.size.width / CGFloat(count)) * 0.22))
+                                        ZStack(alignment: .bottom) {
+                                            RoundedRectangle(cornerRadius: 4)
                                                 .fill(Color.brandPink.opacity(0.28))
-                                                .frame(width: unit, height: hNew)
-
-                                            RoundedRectangle(cornerRadius: 0)
+                                                .frame(width: unit, height: h * CGFloat(d.reviewWords) / CGFloat(max(d.newWords, d.reviewWords)))
+                                            RoundedRectangle(cornerRadius: 4)
                                                 .fill(Color.brandPink.opacity(0.85))
-                                                .frame(width: unit, height: hReview)
+                                                .frame(width: unit, height: h * CGFloat(d.newWords) / CGFloat(max(d.newWords, d.reviewWords)))
                                         }
                                     }
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                                .padding(.horizontal, horizontalPadding)
-                                .padding(.bottom, bottomPadding)
-
-                            }
-                            // X축 라벨을 막대 바로 아래에 붙여 배치
-                            .overlay(alignment: .bottom) {
-                                HStack {
-                                    ForEach(chartData) { d in
-                                        Text(d.label)
-                                            .font(.caption2)
-                                            .foregroundStyle(.black)
-                                        if d.id != chartData.last?.id { Spacer() }
-                                    }
-                                }
-                                .padding(.horizontal, horizontalPadding)
-                                .padding(.bottom, 2)
+                                .padding(.horizontal, 28)
+                                .padding(.bottom, 18)
                             }
                         }
                         .frame(height: 190)
-                        .padding(.bottom, 10)
+
+                        HStack {
+                            ForEach(chartData) { d in
+                                Text(d.label).font(.caption2).foregroundStyle(.gray)
+                                if d.id != chartData.last?.id { Spacer() }
+                            }
+                        }
+                        .padding(.horizontal, 28)
+                        .padding(.bottom, 6)
                     }
+                    .padding(.vertical, 8)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity)
+                .frame(height: 280)
             }
+            .padding(16)
         }
         .background(Color.brandPaper.ignoresSafeArea())
-        .onAppear {
-            todaySeconds = stats.todayLearnedSeconds
-            startTimer()
-        }
-        .onDisappear { stopTimer() }
-        .onChange(of: scenePhase) { _, newPhase in
-            switch newPhase {
-            case .active:   startTimer()
-            case .inactive, .background: stopTimer()
-            @unknown default: break
-            }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) { Text("어휘 학습 정보").font(.headline) }
         }
     }
 
-    // MARK: - Timer
-    private func startTimer() {
-        stopTimer()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            todaySeconds += 1
-        }
-        RunLoop.main.add(timer!, forMode: .common)
-    }
-    private func stopTimer() { timer?.invalidate(); timer = nil }
-
-    // MARK: - Util
     private func secondsToMinuteSecond(_ secs: Int) -> String {
         let m = secs / 60
         let s = secs % 60
@@ -210,23 +157,40 @@ struct LearningOverviewView: View {
     }
 }
 
-// MARK: - Legend Components
-private struct LegendLine: View {
-    let color: Color; let label: String
+// MARK: - Components
+private struct StatTile: View {
+    let icon: String
+    let iconTint: Color
+    let bgTint: Color
+    let title: String
+    let value: String
+
     var body: some View {
-        HStack(spacing: 6) {
-            Capsule().fill(color).frame(width: 18, height: 4)   // 직선 모양
-            Text(label)
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(iconTint)
+                .frame(width: 32, height: 32)
+                .background(bgTint)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.caption).foregroundStyle(.secondary)
+                Text(value).font(.system(size: 22, weight: .bold)).foregroundStyle(.black.opacity(0.9))
+            }
+            Spacer()
         }
+        .padding(14)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.black.opacity(0.05), lineWidth: 1))
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 1)
     }
 }
-private struct LegendDot: View {
+
+private struct Legend: View {
     let color: Color; let label: String
     var body: some View {
-        HStack(spacing: 6) {
-            Circle().fill(color).frame(width: 8, height: 8)
-            Text(label)
-        }
+        HStack(spacing: 6) { Circle().fill(color).frame(width: 8, height: 8); Text(label) }
     }
 }
 
@@ -250,4 +214,3 @@ extension Color {
         self.init(.sRGB, red: Double(r)/255, green: Double(g)/255, blue: Double(b)/255, opacity: Double(a)/255)
     }
 }
-

@@ -59,9 +59,7 @@ struct HomeView: View {
                                 stats: LearningOverview(
                                     todayProgress: stats.todayProgress,
                                     totalProblems: stats.totalProblems,
-
-                                    todayLearnedSeconds: stats.todayLearnedMinutes * 60,
-
+                                    todayLearnedSeconds: stats.todayLearnedMinutes * 60, // 분 → 초 변환
                                     minutesLearnedTotal: stats.minutesLearnedTotal
                                 ),
                                 onStartToday: { isShowingLearningView = true }
@@ -70,7 +68,7 @@ struct HomeView: View {
                             LearningInfoCardView(stats: stats)
                         }
                         .buttonStyle(.plain)
-                        
+
                         //기초 다지기 (버튼 2개)
                         KanaSectionView(
                             onTapHiragana: { goHiragana = true },
