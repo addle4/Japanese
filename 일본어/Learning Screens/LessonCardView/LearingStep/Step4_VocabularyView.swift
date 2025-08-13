@@ -181,14 +181,14 @@ struct Step4_VocabularyView: View {
                     Text("정확도: \(recognizer.calculateSimilarity(to: targetSentence))%")
                         .font(.headline)
                         .foregroundColor(.green)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.horizontal, 16)
 
                     Spacer(minLength: 0) // 위쪽 정렬 유지
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
             }
-            .onAppear { viewModel.play() }
+            .onAppear { viewModel.playFromStart() }
             .onDisappear {
                 viewModel.pause()
                 if recognizer.isRecording { recognizer.stopRecording() }

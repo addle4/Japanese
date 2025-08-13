@@ -8,6 +8,7 @@
 
 import Foundation
 
+// 채점/하이라이트 용 정렬 결과
 struct AlignmentResult {
     let matches: Int
     let substitutions: Int
@@ -28,63 +29,63 @@ struct AlignmentResult {
     }
 }
 
+// 텍스트 정규화 옵션
 enum TextNormalizeOption {
-    case basic                 // 공백/문장부호 제거 + NFKC 유사
-    case japaneseFoldKana      // 전각/반각 정규화 + Katakana→Hiragana + 공백/문장부호 제거
+    case basic                // 공백/문장부호 제거 + NFKC 유사
+    case japaneseFoldKana     // 전각/반각 정규화 + Katakana→Hiragana + 공백/문장부호 제거
 }
 
+// 공통 정규화
 func normalizeText(_ s: String, option: TextNormalizeOption = .basic) -> String {
     var t = s.precomposedStringWithCompatibilityMapping
 
     if option == .japaneseFoldKana {
         let mutable = NSMutableString(string: t)
+        // 전각/반각 정규화
         CFStringTransform(mutable, nil, kCFStringTransformFullwidthHalfwidth, false)
+        // Katakana → Hiragana 접기
         CFStringTransform(mutable, nil, "Katakana-Hiragana" as NSString, true)
         t = mutable as String
     }
 
-    // 공백/개행 + 문장부호 + 기호(일부 케이스) 제거
+    // 공백/개행 + 문장부호 + 기호 제거 (Swift CharacterSet 사용)
     let ws = CharacterSet.whitespacesAndNewlines
     let punct = CharacterSet.punctuationCharacters
-    let symbols = CharacterSet.symbols // ‘・’ 같은 기호 대응
+    let symbols = CharacterSet.symbols
     t = String(t.unicodeScalars.filter { !ws.contains($0) && !punct.contains($0) && !symbols.contains($0) })
 
     return t
 }
 
-/// Levenshtein DP 기반 문자 정렬 + 백트레이스
-/// Levenshtein DP 기반 문자 정렬 + 백트레이스 (빈 문자열 안전처리 포함)
+/// Levenshtein DP 기반 문자 정렬 + 백트레이스 (빈 문자열 안전처리)
 func alignCharacters(ref: String, hyp: String) -> AlignmentResult {
     let r = Array(ref)
     let h = Array(hyp)
     let m = r.count, n = h.count
 
-    // 0글자 예외: 바로 정렬 결과 생성
+    // 빈 문자열 예외처리
     if m == 0 && n == 0 {
         return AlignmentResult(matches: 0, substitutions: 0, insertions: 0, deletions: 0,
                                alignedRef: [], alignedHyp: [])
     }
     if m == 0 {
-        // 모두 삽입
         return AlignmentResult(matches: 0, substitutions: 0, insertions: n, deletions: 0,
                                alignedRef: Array<Character?>(repeating: nil, count: n),
                                alignedHyp: h.map { Optional($0) })
     }
     if n == 0 {
-        // 모두 삭제
         return AlignmentResult(matches: 0, substitutions: 0, insertions: 0, deletions: m,
                                alignedRef: r.map { Optional($0) },
                                alignedHyp: Array<Character?>(repeating: nil, count: m))
     }
 
-    // DP 테이블
+    // DP/백포인터 테이블
     var dp = Array(repeating: Array(repeating: 0, count: n + 1), count: m + 1)
     var bt = Array(repeating: Array(repeating: 0, count: n + 1), count: m + 1) // 0=diag,1=up,2=left
 
     for i in 0...m { dp[i][0] = i; if i > 0 { bt[i][0] = 1 } }
     for j in 0...n { dp[0][j] = j; if j > 0 { bt[0][j] = 2 } }
 
-    // ⚠️ 안전한 범위: 1...m, 1...n 은 m, n > 0 이므로 안전
     for i in 1...m {
         for j in 1...n {
             let cost = (r[i - 1] == h[j - 1]) ? 0 : 1
