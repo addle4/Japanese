@@ -1,4 +1,7 @@
 // SpeechRecognizer.swift
+//
+// 중복 제거 버전: 정렬/정규화 로직은 StringAlignment.swift 의 것을 사용
+// calculateSimilarity / similarityDetail 만 해당 유틸을 호출
 
 import Foundation
 import AVFoundation
@@ -17,13 +20,19 @@ class SpeechRecognizer: NSObject, ObservableObject {
         super.init()
         SFSpeechRecognizer.requestAuthorization { status in
             if status != .authorized {
-                print("음성 인식 권한이 없습니다.")
+                print("음성 인식 권한이 없다.")
             }
         }
         AVAudioApplication.requestRecordPermission { granted in
-            if !granted { print("마이크 권한이 없습니다.") }
+            if !granted { print("마이크 권한이 없다.") }
         }
     }
+
+    deinit {
+        stopRecording()
+    }
+
+    // MARK: - Recording
 
     func startRecording() {
         if audioEngine.isRunning {
@@ -41,11 +50,15 @@ class SpeechRecognizer: NSObject, ObservableObject {
             try session.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
             print("AVAudioSession 설정 실패: \(error.localizedDescription)")
+            cleanupAfterStop()
             return
         }
 
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
+        if #available(iOS 13.0, *) {
+            req.requiresOnDeviceRecognition = false
+        }
         self.request = req
 
         let input = audioEngine.inputNode
@@ -107,12 +120,19 @@ class SpeechRecognizer: NSObject, ObservableObject {
         DispatchQueue.main.async { self.isRecording = false }
     }
 
+    // MARK: - 채점 (StringAlignment 유틸 사용)
+
     func calculateSimilarity(to target: String) -> Int {
-        let normalizedTarget = target.lowercased().filter { !$0.isWhitespace }
-        let normalizedSpeech = recognizedText.lowercased().filter { !$0.isWhitespace }
-        let matches = zip(normalizedTarget, normalizedSpeech).filter { $0 == $1 }.count
-        let maxLength = max(normalizedTarget.count, normalizedSpeech.count)
-        guard maxLength > 0 else { return 0 }
-        return Int((Double(matches) / Double(maxLength)) * 100)
+        let ref = normalizeText(target, option: .japaneseFoldKana)
+        let hyp = normalizeText(self.recognizedText, option: .japaneseFoldKana)
+        let result = alignCharacters(ref: ref, hyp: hyp)
+        return result.accuracyPercent
+    }
+
+    func similarityDetail(to target: String) -> (percent: Int, substitutions: Int, insertions: Int, deletions: Int) {
+        let ref = normalizeText(target, option: .japaneseFoldKana)
+        let hyp = normalizeText(self.recognizedText, option: .japaneseFoldKana)
+        let r = alignCharacters(ref: ref, hyp: hyp)
+        return (r.accuracyPercent, r.substitutions, r.insertions, r.deletions)
     }
 }

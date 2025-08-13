@@ -2,7 +2,7 @@
 import SwiftUI
 import AVKit
 
-// ✅ 줄바꿈 가능한 래핑 레이아웃 (그대로 사용)
+// 줄바꿈 가능한 래핑 레이아웃 (그대로 사용)
 struct Wrap: Layout {
     var spacing: CGFloat = 8
     var lineSpacing: CGFloat = 8
@@ -33,7 +33,7 @@ struct Wrap: Layout {
     }
 }
 
-// ✅ 후리가나 토큰/뷰 (fixedSize 제거)
+// 후리가나 토큰/뷰 (fixedSize 제거)
 struct FuriganaToken: Identifiable {
     let id = UUID()
     let base: String
@@ -70,7 +70,7 @@ struct FuriganaWrapLines: View {
     }
 }
 
-// ✅ Step 4: Step 1 과 동일 축으로 정렬
+// Step 4: Step 1 과 동일 축으로 정렬
 struct Step4_VocabularyView: View {
     var onComplete: () -> Void
     @ObservedObject var viewModel: PlayerViewModel
@@ -105,10 +105,10 @@ struct Step4_VocabularyView: View {
             buttonReservedHeight: 84,     // ✅ Step1 과 동일
             horizontalMargin: 16          // ✅ Step1 과 동일
         ) {
-            // ✅ 콘텐츠는 필요 시 스크롤되도록
+            // 콘텐츠는 필요 시 스크롤되도록
             ScrollView {
                 VStack(spacing: 10) {
-                    // ✅ 헤드라인/서브헤드: Step1 과 동일 값
+                    // 헤드라인/서브헤드: Step1 과 동일 값
                     Text("Step 4 : 따라 말하기")
                         .font(.title)
                         .fontWeight(.bold)
@@ -119,15 +119,15 @@ struct Step4_VocabularyView: View {
                         .font(.subheadline)
                         .foregroundStyle(.gray)
 
-                    Spacer().frame(height: 25) // ✅ Step1 과 동일 간격
+                    Spacer().frame(height: 25) // Step1 과 동일 간격
 
-                    // ✅ 영상 위치/크기/패딩: Step1 과 동일
+                    // 영상 위치/크기/패딩: Step1 과 동일
                     CustomAVPlayerView(player: viewModel.player)
                         .frame(height: 250)
                         .cornerRadius(20)
                         .padding(.horizontal, 16)
 
-                    // ✅ 문장 박스도 같은 가로 축(좌우 16) 위에 놓기
+                    // 문장 박스도 같은 가로 축(좌우 16) 위에 놓기
                     VStack(alignment: .leading, spacing: 8) {
                         FuriganaWrapLines(tokens: line1)
                         FuriganaWrapLines(tokens: line2)
@@ -194,7 +194,7 @@ struct Step4_VocabularyView: View {
                 if recognizer.isRecording { recognizer.stopRecording() }
             }
         } button: {
-            // ✅ 하단 버튼도 Step1 과 동일한 방식/폭으로 고정
+            // 하단 버튼도 Step1 과 동일한 방식/폭으로 고정
             AppButton(title: "제출하기", action: onComplete)
         }
     }
