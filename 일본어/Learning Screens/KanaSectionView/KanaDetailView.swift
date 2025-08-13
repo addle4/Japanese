@@ -7,24 +7,156 @@ final class SpeechPlayer {
     private let synth = AVSpeechSynthesizer()
     
     private init() {
-        try? AVAudioSession.sharedInstance().setCategory(.playback,
-                                                         mode: .spokenAudio,
-                                                         options: [.duckOthers])
+        try? AVAudioSession.sharedInstance().setCategory(
+            .playback,
+            mode: .spokenAudio,
+            options: [.duckOthers]
+        )
         try? AVAudioSession.sharedInstance().setActive(true, options: [])
     }
     
+    // MARK: - 모라 추정(대략)
+    private func estimateMora(_ text: String) -> Double {
+        let smallKana: Set<Character> = Set("ゃゅょぁぃぅぇぉャュョァィゥェォヮっッ")
+        var mora: Double = 0
+        for ch in text {
+            switch ch.unicodeScalars.first?.value ?? 0 {
+            case 0x3040...0x309F: // ひらがな
+                mora += smallKana.contains(ch) ? 0.5 : 1.0
+            case 0x30A0...0x30FF: // カタカナ
+                mora += smallKana.contains(ch) ? 0.5 : 1.0
+            case 0x4E00...0x9FFF: // 한자
+                mora += 2.0
+            default:
+                mora += 0.5
+            }
+        }
+        return max(mora, 1.0)
+    }
+    
+    private func rate(forMora mora: Double) -> Float {
+        switch mora {
+        case ..<1.5:    return 0.22
+        case ..<2.5:    return 0.25
+        case ..<3.5:    return 0.30
+        case ..<4.5:    return 0.35
+        case ..<6.5:    return 0.40
+        default:        return 0.45
+        }
+    }
+    
+    // MARK: - 문자열 처리
+    private func trimmedPunctuations(_ s: String) -> String {
+        let jpPunct = "、。・「」『』（）【】［］《》！？：；…ー"
+        let enPunct = ".,!?;:()[]{}\"'`~"
+        let set = CharacterSet(charactersIn: jpPunct + enPunct + " ").union(.whitespacesAndNewlines)
+        return s.trimmingCharacters(in: set)
+    }
+    
+    // 길게 읽을 대상 판단
+    private func shouldElongate(_ token: String) -> Bool {
+        let trimmed = trimmedPunctuations(token)
+        let lowered = trimmed.lowercased()
+
+        // 로마자
+        if ["a","e","he","i","o","n","wo"].contains(lowered) { return true }
+
+        // 가나 (を, ヲ 추가)
+        let elongateKana: Set<String> = [
+            "あ","ア",
+            "え","エ",
+            "へ","ヘ",
+            "い","イ",
+            "お","オ",
+            "ん","ン",
+            "を","ヲ"   // ← 추가
+        ]
+        return elongateKana.contains(trimmed)
+    }
+
+    // 모라 반복 변환
+    private func elongatedStringByRepetition(for token: String) -> String {
+        let trimmed = trimmedPunctuations(token)
+        let lowered = trimmed.lowercased()
+        let suffix = token.replacingOccurrences(of: trimmed, with: "")
+
+        switch lowered {
+        case "a": return "ああ" + suffix
+        case "e": return "ええ" + suffix
+        case "he": return "へー" + suffix
+        case "i": return "いい" + suffix
+        case "o": return "おお" + suffix
+        case "n": return "んん" + suffix
+        case "wo": return "をを" + suffix // ← 추가
+        default:
+            let mapRepeat: [String:String] = [
+                "あ":"ああ", "ア":"アア",
+                "え":"ええ", "エ":"エエ",
+                "へ":"へー", "ヘ":"ヘー",
+                "い":"いい", "イ":"イイ",
+                "お":"おお", "オ":"オオ",
+                "ん":"んん", "ン":"ンン",
+                "を":"をを", "ヲ":"ヲヲ"  // ← 추가
+            ]
+            if let rep = mapRepeat[trimmed] {
+                return rep + suffix
+            }
+            return token
+        }
+    }
+    
+    private func interWordPause(after token: String) -> Double {
+        let punctTail = token.last.map { "、。.!?？！".contains($0) } ?? false
+        if punctTail { return 0.20 }
+        let m = estimateMora(token)
+        return m < 2 ? 0.10 : 0.06
+    }
+    
+    // MARK: - 메인
     func speakJapanese(_ text: String) {
-        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        let u = AVSpeechUtterance(string: text)
-        u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
-        u.rate  = 0.15        // 🔹 기존 0.45 → 0.35로 낮춰서 발음을 길게
-        u.pitchMultiplier = 1.0
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        
+        let tokens = trimmed.split(whereSeparator: { $0.isWhitespace })
+        let chunks: [String] = tokens.isEmpty ? [trimmed] : tokens.map(String.init)
+        
         synth.stopSpeaking(at: .immediate)
-        synth.speak(u)
+        
+        for (idx, token) in chunks.enumerated() {
+            // ✅ 대상이면 같은 모라 2회로 늘림
+            let speakText = shouldElongate(token) ? elongatedStringByRepetition(for: token) : token
+            
+            let u = AVSpeechUtterance(string: speakText)
+            u.voice = AVSpeechSynthesisVoice(language: "ja-JP")
+            u.pitchMultiplier = 1.0
+            u.prefersAssistiveTechnologySettings = true
+            
+            let m = estimateMora(speakText)
+            var baseRate = rate(forMora: m)
+            var postDelay = interWordPause(after: speakText)
+            
+            if shouldElongate(token) {
+                // 반복 자체로 모라가 늘었으므로, 지나치게 느려지지 않게 살짝만 낮춤
+                baseRate = 0.16
+                postDelay += 0.10
+            } else if m < 1.5 {
+                baseRate = max(0.18, baseRate - 0.04)
+            }
+            
+            u.rate = baseRate
+            u.preUtteranceDelay = 0.0
+            u.postUtteranceDelay = postDelay
+            
+            if idx == chunks.count - 1 {
+                u.postUtteranceDelay += 0.05
+            }
+            
+            synth.speak(u)
+        }
     }
 }
 
-// MARK: - KanaDetailView
+// MARK: - KanaDetailView (UI 변경 없음)
 struct KanaDetailView: View {
     let character: KanaCharacter
     var onClose: () -> Void
@@ -77,7 +209,7 @@ struct KanaDetailView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.black)
                     
-                    // ✅ 발음 재생 버튼
+                    // ✅ 발음 재생 버튼 (UI/색상 그대로)
                     Button {
                         SpeechPlayer.shared.speakJapanese(character.kana)
                     } label: {

@@ -53,15 +53,22 @@ struct HomeView: View {
                             isShowingConversation = true
                         }
 
-                        // 학습정보 (프레임 전체 탭 → 상세 화면)
                         SectionHeader(title: "학습정보", systemImage: "chart.bar.xaxis")
                         NavigationLink {
-                            LearningOverviewView(stats: stats, onStartToday: { isShowingLearningView = true })
+                            LearningOverviewView(
+                                stats: LearningOverview(
+                                    todayProgress: stats.todayProgress,
+                                    totalProblems: stats.totalProblems,
+                                    todayLearnedSeconds: stats.todayLearnedMinutes * 60,
+                                    minutesLearnedTotal: stats.minutesLearnedTotal
+                                ),
+                                onStartToday: { isShowingLearningView = true }
+                            )
                         } label: {
                             LearningInfoCardView(stats: stats)
                         }
                         .buttonStyle(.plain)
-
+                        
                         //기초 다지기 (버튼 2개)
                         KanaSectionView(
                             onTapHiragana: { goHiragana = true },

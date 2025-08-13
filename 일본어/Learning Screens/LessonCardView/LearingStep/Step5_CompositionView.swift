@@ -8,7 +8,6 @@ struct Step5_CompositionView: View {
     var onComplete: () -> Void
 
     var body: some View {
-        // 이미 가지고 있는 RatioAnchoredButtonLayout 사용
         RatioAnchoredButtonLayout(
             buttonYRatio: 0.90,
             buttonReservedHeight: 84,
@@ -104,8 +103,6 @@ struct Step5_CompositionView: View {
                     .background(Color(red: 1.0, green: 107/255, blue: 129/255))
                     .cornerRadius(15)
             }
-            // ⬆︎ RatioAnchoredButtonLayout 이 가로 폭을 잡아주므로
-            // 여기서는 .padding(.horizontal) 불필요 (넣으면 레일에서 벗어남)
         }
     }
 }
@@ -148,9 +145,20 @@ struct WordRow: View {
                 .foregroundColor(.gray)
                 .fixedSize(horizontal: false, vertical: true)
 
+            // 북마크 버튼 (STEP 라벨 없는 행에만 노출)
             if step == nil {
-                Button(action: {
-                    isBookmarked.toggle()
+                Button {
+                    // 토글 결과
+                    let willOn = !isBookmarked
+                    isBookmarked = willOn
+
+                    // ✅ 즉시 영구 저장: Step5 → 오늘의 학습
+                    let vocab = VocabItem(kanji: kanji, furigana: furigana, korean: meaning, dayTag: "Day1")
+                    var learning = VocabularyStorage.shared.loadLearning()
+                    learning = learning.toggled(vocab, isOn: willOn)
+                    VocabularyStorage.shared.saveLearning(learning)
+
+                    // 실시간 알림 (VocabularyView 갱신)
                     NotificationCenter.default.post(
                         name: .vocabBookmarkChanged,
                         object: nil,
@@ -159,10 +167,10 @@ struct WordRow: View {
                             "kanji": kanji,
                             "meaning": meaning,
                             "day": "Day1",
-                            "isOn": isBookmarked
+                            "isOn": willOn
                         ]
                     )
-                }) {
+                } label: {
                     Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
                         .foregroundColor(isBookmarked ? .pink : .gray)
                         .padding(.leading, 4)
