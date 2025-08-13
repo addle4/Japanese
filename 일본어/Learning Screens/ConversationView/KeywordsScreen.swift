@@ -11,7 +11,7 @@ struct KeywordsScreen: View {
         VocabItem(kanji: "月",    furigana: "げつ",   korean: "월",    dayTag: "Day1")
     ]
     @State private var localOn: Set<UUID> = []
-
+    
     var body: some View {
         VStack(spacing: 12) {
 
